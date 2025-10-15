@@ -67,15 +67,15 @@ export default function CryptoPage() {
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Base Wallet (Zora)</span>
               <WalletSecurityTooltip />
+              <span className="text-xs text-muted-foreground">Base Wallet (Zora)</span>
             </div>
             <ZoraWalletConnect onConnect={handleEthWalletConnect} />
           </div>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Solana Wallet (Pump.fun)</span>
               <WalletSecurityTooltip />
+              <span className="text-xs text-muted-foreground">Solana Wallet (Pump.fun)</span>
             </div>
             <PhantomWalletButton onConnect={handleSolanaWalletConnect} />
           </div>
