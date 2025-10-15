@@ -10,7 +10,7 @@ export default function LandingPage() {
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary via-accent to-primary glow-primary">
               <Zap className="h-6 w-6 text-white" fill="white" />
             </div>
@@ -18,7 +18,7 @@ export default function LandingPage() {
               <h1 className="text-xl font-bold gradient-text">Bagger</h1>
               <p className="text-xs text-muted-foreground">Analytics for Web3 Creators</p>
             </div>
-          </div>
+          </Link>
           <nav className="flex items-center gap-4">
             <Link href="/sign-in">
               <Button variant="ghost">Sign In</Button>
