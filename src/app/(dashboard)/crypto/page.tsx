@@ -61,7 +61,7 @@ export default function CryptoPage() {
         <div>
           <h1 className="text-3xl font-bold gradient-text">Your Bags</h1>
           <p className="mt-2 text-muted-foreground">
-            Track all your bags across Zora (Base) and Pump.fun (Solana)
+            Track your creator bags across Zora (Base) and Pump.fun (Solana)
           </p>
         </div>
         <div className="flex flex-col gap-3">
