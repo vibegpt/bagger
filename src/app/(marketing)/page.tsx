@@ -41,13 +41,13 @@ export default function LandingPage() {
           </Badge>
         </div>
         <h1 className="text-5xl md:text-7xl font-bold mb-6">
-          <span className="gradient-text">Analytics for Web3 Creators</span>
+          The First Analytics Platform
           <br />
-          Track Tokens. Streams. Engagement.
+          <span className="gradient-text">Built for Web3 Creators</span>
         </h1>
         <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Built for Web3 creators launching tokens on Pump.fun (Solana) and Zora (Base).
-          Track unlimited bags, correlate streams with token performance, and discover your best posting times.
+          Track your tokens across Pump.fun and Zora. Correlate streams with token performance.
+          Discover what drives engagement. All in one dashboard built specifically for creators.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/sign-up">
