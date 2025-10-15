@@ -26,7 +26,7 @@ export function Sidebar() {
         </div>
         <div>
           <h1 className="text-xl font-bold gradient-text">Bagger</h1>
-          <p className="text-[10px] text-muted-foreground">Track Your Bags</p>
+          <p className="text-[10px] text-muted-foreground">Analytics for Web3 Creators</p>
         </div>
       </div>
 
