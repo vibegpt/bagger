@@ -20,14 +20,16 @@ export function Sidebar() {
   return (
     <div className="flex h-screen w-64 flex-col border-r bg-sidebar">
       {/* Logo */}
-      <div className="flex h-16 items-center border-b px-6 gap-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary via-accent to-primary glow-primary">
-          <Zap className="h-6 w-6 text-white" fill="white" />
-        </div>
-        <div>
-          <h1 className="text-xl font-bold gradient-text">Bagger</h1>
-          <p className="text-[10px] text-muted-foreground">Analytics for Web3 Creators</p>
-        </div>
+      <div className="flex h-16 items-center border-b px-6">
+        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary via-accent to-primary glow-primary">
+            <Zap className="h-6 w-6 text-white" fill="white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold gradient-text">Bagger</h1>
+            <p className="text-[10px] text-muted-foreground">Analytics for Web3 Creators</p>
+          </div>
+        </Link>
       </div>
 
       {/* Navigation */}
