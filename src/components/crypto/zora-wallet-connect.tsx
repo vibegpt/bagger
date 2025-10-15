@@ -86,16 +86,25 @@ export function ZoraWalletConnect({ onConnect }: ZoraWalletConnectProps) {
                 }
 
                 return (
-                  <button
-                    onClick={openAccountModal}
-                    type="button"
-                    className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2 hover:bg-primary/10 transition-colors"
-                  >
-                    <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-sm font-medium">
-                      {account.displayName}
-                    </span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={openAccountModal}
+                      type="button"
+                      className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2 hover:bg-primary/10 transition-colors flex-1"
+                    >
+                      <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                      <span className="text-sm font-medium">
+                        {account.displayName}
+                      </span>
+                    </button>
+                    <button
+                      onClick={openAccountModal}
+                      type="button"
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3"
+                    >
+                      Disconnect
+                    </button>
+                  </div>
                 );
               })()}
             </div>
