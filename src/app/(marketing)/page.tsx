@@ -89,11 +89,11 @@ export default function LandingPage() {
           </Card>
           <Card className="text-center border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent">
             <CardHeader>
-              <CardTitle className="text-4xl font-bold text-green-500">$0</CardTitle>
-              <CardDescription>Forever Free</CardDescription>
+              <CardTitle className="text-4xl font-bold text-green-500">Free</CardTitle>
+              <CardDescription>Beta Access</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">MVP is 100% free</p>
+              <p className="text-sm text-muted-foreground">Early adopter benefits</p>
             </CardContent>
           </Card>
         </div>
