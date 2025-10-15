@@ -16,6 +16,7 @@ export default function LandingPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold gradient-text">Bagger</h1>
+              <p className="text-xs text-muted-foreground">Analytics for Web3 Creators</p>
             </div>
           </div>
           <nav className="flex items-center gap-4">
@@ -40,9 +41,9 @@ export default function LandingPage() {
           </Badge>
         </div>
         <h1 className="text-5xl md:text-7xl font-bold mb-6">
-          The First Multi-Platform
+          <span className="gradient-text">Analytics for Web3 Creators</span>
           <br />
-          <span className="gradient-text">Crypto Portfolio Tracker</span>
+          Track Tokens. Streams. Engagement.
         </h1>
         <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
           Built for Web3 creators launching tokens on Pump.fun (Solana) and Zora (Base).
@@ -410,7 +411,7 @@ export default function LandingPage() {
                 <h3 className="font-bold gradient-text">Bagger</h3>
               </div>
               <p className="text-sm text-muted-foreground">
-                Track Your Bags. Secure Your Bags.
+                Analytics for Web3 Creators
               </p>
             </div>
 
