@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Coins, TrendingUp, Users, Wallet, Zap } from "lucide-react";
 import { ZoraWalletConnect } from "@/components/crypto/zora-wallet-connect";
 import { PhantomWalletButton } from "@/components/crypto/phantom-wallet-button";
+import { WalletSecurityTooltip } from "@/components/crypto/wallet-security-tooltip";
 import { ZoraHoldingsDashboard } from "@/components/crypto/zora-holdings-dashboard";
 import { PumpFunHoldingsDashboard } from "@/components/crypto/pumpfun-holdings-dashboard";
 import { PortfolioOverview } from "@/components/crypto/portfolio-overview";
@@ -65,49 +66,21 @@ export default function CryptoPage() {
         </div>
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">Base Wallet (Zora)</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Base Wallet (Zora)</span>
+              <WalletSecurityTooltip />
+            </div>
             <ZoraWalletConnect onConnect={handleEthWalletConnect} />
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">Solana Wallet (Pump.fun)</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Solana Wallet (Pump.fun)</span>
+              <WalletSecurityTooltip />
+            </div>
             <PhantomWalletButton onConnect={handleSolanaWalletConnect} />
           </div>
         </div>
       </div>
-
-      {/* Security Notice */}
-      {!ethWallet && !solanaWallet && (
-        <Card className="border-green-500/20 bg-green-500/5">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/10 flex-shrink-0">
-                <span className="text-2xl">🔒</span>
-              </div>
-              <div className="space-y-2">
-                <h3 className="font-semibold text-green-600 dark:text-green-400">
-                  Your Wallet is Safe
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Bagger is a <strong>read-only</strong> portfolio tracker. When you connect your wallet:
-                </p>
-                <ul className="text-sm text-muted-foreground space-y-1 pl-4">
-                  <li>✓ We only view your public wallet address and token balances</li>
-                  <li>✓ We <strong>never</strong> request transaction signing permissions</li>
-                  <li>✓ We <strong>cannot</strong> move or access your funds</li>
-                  <li>✓ We <strong>never</strong> see your private keys or seed phrase</li>
-                  <li>✓ All blockchain data we display is already public</li>
-                </ul>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Learn more in our{" "}
-                  <a href="/privacy" target="_blank" className="text-primary hover:underline">
-                    Privacy Policy
-                  </a>
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Portfolio Overview */}
       <PortfolioOverview ethWallet={ethWallet} solanaWallet={solanaWallet} />
