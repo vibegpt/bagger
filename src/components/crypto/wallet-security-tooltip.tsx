@@ -23,7 +23,7 @@ export function WalletSecurityTooltip() {
         </TooltipTrigger>
         <TooltipContent
           side="bottom"
-          className="max-w-sm p-4 border-green-500/20 bg-green-500/5"
+          className="max-w-sm p-4 border-green-500/20 bg-background/95 backdrop-blur-sm"
         >
           <div className="space-y-2">
             <h4 className="font-semibold text-green-600 dark:text-green-400 flex items-center gap-2">
