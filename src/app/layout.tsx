@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bagger | Track Your Web3 Bags",
-  description: "The bag tracker for Web3 creators. Track your creator coins and earnings across Zora and Pump.fun. Secure the bag.",
+  title: "Bagger | Analytics for Web3 Creators",
+  description: "Analytics platform for Web3 creators. Track your tokens across Zora and Pump.fun. Correlate streams with token performance. Discover what drives engagement.",
 };
 
 export default function RootLayout({
