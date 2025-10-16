@@ -233,6 +233,7 @@ export class ZoraClient {
             balance: balance.toString(), // Converted balance (from wei)
             percentageOfSupply, // Percentage of total supply held
             holdingsValue, // Dollar value of holdings (balance × price)
+            imageUrl: coin.image || coin.imageUrl || coin.metadata?.image || undefined, // Add token image
           });
         } else {
           contentCoins.push({
@@ -256,6 +257,7 @@ export class ZoraClient {
             balance: balance.toString(), // Converted balance (from wei)
             percentageOfSupply, // Percentage of total supply held
             holdingsValue, // Dollar value of holdings (balance × price)
+            imageUrl: coin.image || coin.imageUrl || coin.metadata?.image || undefined, // Add token image
           });
         }
       }

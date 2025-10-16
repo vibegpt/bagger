@@ -22,6 +22,7 @@ export interface ZoraCreatorCoin {
   balance?: string; // Actual token balance held by the wallet
   percentageOfSupply?: number; // Percentage of total supply held
   holdingsValue?: number; // Dollar value of holdings (balance × price)
+  imageUrl?: string; // Token logo/image URL
 }
 
 export interface ZoraContentCoin {
@@ -46,6 +47,7 @@ export interface ZoraContentCoin {
   percentageOfSupply?: number; // Percentage of total supply held
   holdingsValue?: number; // Dollar value of holdings (balance × price)
   priceChange24h?: number; // 24h price change percentage
+  imageUrl?: string; // Token logo/image URL
 }
 
 export interface ZoraCreatorEarnings {

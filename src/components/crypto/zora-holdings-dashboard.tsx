@@ -150,9 +150,17 @@ export function ZoraHoldingsDashboard({ walletAddress }: ZoraHoldingsDashboardPr
                     <Card key={`${coin.address}-${index}`} className="cyber-border">
                       <CardHeader>
                         <div className="flex items-center justify-between">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
-                            <Coins className="h-5 w-5 text-white" />
-                          </div>
+                          {coin.imageUrl ? (
+                            <img
+                              src={coin.imageUrl}
+                              alt={coin.name}
+                              className="w-10 h-10 rounded-lg object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
+                              <Coins className="h-5 w-5 text-white" />
+                            </div>
+                          )}
                           <Badge variant="secondary" className="bg-primary/20 text-primary">
                             Holding
                           </Badge>
@@ -197,9 +205,17 @@ export function ZoraHoldingsDashboard({ walletAddress }: ZoraHoldingsDashboardPr
                     <Card key={`${coin.address}-${index}`} className="cyber-border">
                       <CardHeader>
                         <div className="flex items-center justify-between">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-primary">
-                            <TrendingUp className="h-5 w-5 text-white" />
-                          </div>
+                          {coin.imageUrl ? (
+                            <img
+                              src={coin.imageUrl}
+                              alt={coin.name || 'Content coin'}
+                              className="w-10 h-10 rounded-lg object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-primary">
+                              <TrendingUp className="h-5 w-5 text-white" />
+                            </div>
+                          )}
                           <Badge variant="secondary" className="bg-accent/20 text-accent">
                             Holding
                           </Badge>
