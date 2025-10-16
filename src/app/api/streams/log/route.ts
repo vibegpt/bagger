@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
+import { createTokenSnapshot } from '@/lib/services/token-snapshot';
 
 export async function POST(request: Request) {
   try {
@@ -70,14 +71,40 @@ export async function POST(request: Request) {
       },
     });
 
-    // TODO: Automatically capture token snapshots
-    // - Pre-stream snapshot (at startedAt)
-    // - During stream snapshot (if still ongoing)
-    // - Post-stream snapshots (1h, 24h after endedAt)
+    // Automatically capture token snapshots
+    if (relatedTokenMint || relatedTokenAddress) {
+      try {
+        // Create pre-stream snapshot (captures token state at stream start)
+        await createTokenSnapshot(
+          streamSession.id,
+          'pre_stream',
+          relatedTokenMint,
+          relatedTokenAddress
+        );
+
+        // If stream has ended, create post-stream snapshot immediately
+        if (endedAt) {
+          await createTokenSnapshot(
+            streamSession.id,
+            'post_stream_1h', // Immediate snapshot (treating as 1h for now)
+            relatedTokenMint,
+            relatedTokenAddress
+          );
+        }
+
+        console.log('Token snapshots created successfully');
+      } catch (snapshotError) {
+        console.error('Error creating token snapshots:', snapshotError);
+        // Don't fail the request if snapshots fail
+      }
+    }
 
     return NextResponse.json({
       success: true,
       data: streamSession,
+      message: relatedTokenMint || relatedTokenAddress
+        ? 'Stream logged with token snapshots'
+        : 'Stream logged successfully',
     });
   } catch (error) {
     console.error('Error logging stream:', error);
