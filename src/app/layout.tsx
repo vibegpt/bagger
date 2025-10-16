@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/react";
 import { Web3Provider } from "@/components/providers/web3-provider";
 import "./globals.css";
 
@@ -35,6 +36,7 @@ export default function RootLayout({
             {children}
             <Toaster position="top-right" />
           </Web3Provider>
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>
