@@ -65,13 +65,16 @@ export async function POST(req: Request) {
 
       if (!existingUser) {
         // Create user in database
+        const fullName = first_name && last_name
+          ? `${first_name} ${last_name}`
+          : first_name || last_name || null;
+
         await db.user.create({
           data: {
             clerkId: id,
             email: userEmail,
-            firstName: first_name || null,
-            lastName: last_name || null,
-            imageUrl: image_url || null,
+            name: fullName,
+            avatarUrl: image_url || null,
           },
         });
 
