@@ -53,61 +53,75 @@ export async function POST(req: Request) {
 
   if (eventType === 'user.created') {
     const { id, email_addresses, first_name, last_name, image_url } = evt.data;
+    const userEmail = email_addresses[0]?.email_address || '';
 
     try {
-      // Create user in database
-      await db.user.create({
-        data: {
-          clerkId: id,
-          email: email_addresses[0]?.email_address || '',
-          firstName: first_name || null,
-          lastName: last_name || null,
-          imageUrl: image_url || null,
-        },
+      // Check if user already exists
+      const existingUser = await db.user.findUnique({
+        where: { clerkId: id },
       });
 
-      console.log(`User created in database: ${id}`);
+      let isNewUser = false;
 
-      // Send email notification to admin
-      const resendApiKey = process.env.RESEND_API_KEY;
-      if (resendApiKey) {
-        try {
-          const resend = new Resend(resendApiKey);
-          const userEmail = email_addresses[0]?.email_address || 'Unknown';
-          const userName = first_name && last_name
-            ? `${first_name} ${last_name}`
-            : first_name || last_name || 'Unknown';
+      if (!existingUser) {
+        // Create user in database
+        await db.user.create({
+          data: {
+            clerkId: id,
+            email: userEmail,
+            firstName: first_name || null,
+            lastName: last_name || null,
+            imageUrl: image_url || null,
+          },
+        });
 
-          await resend.emails.send({
-            from: 'Bagger <notifications@bagger.tools>',
-            to: 'admin@bagger.tools',
-            subject: '🎉 New User Sign-Up - Bagger',
-            html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #6366f1;">New User Signed Up!</h2>
-                <p>A new user just created an account on Bagger.</p>
-                <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                  <p><strong>Name:</strong> ${userName}</p>
-                  <p><strong>Email:</strong> ${userEmail}</p>
-                  <p><strong>User ID:</strong> ${id}</p>
-                  <p><strong>Signed up:</strong> ${new Date().toLocaleString()}</p>
+        console.log(`User created in database: ${id}`);
+        isNewUser = true;
+      } else {
+        console.log(`User already exists in database: ${id}`);
+      }
+
+      // Send email notification to admin (only for new users)
+      if (isNewUser) {
+        const resendApiKey = process.env.RESEND_API_KEY;
+        if (resendApiKey) {
+          try {
+            const resend = new Resend(resendApiKey);
+            const userName = first_name && last_name
+              ? `${first_name} ${last_name}`
+              : first_name || last_name || 'Unknown';
+
+            await resend.emails.send({
+              from: 'Bagger <notifications@bagger.tools>',
+              to: 'admin@bagger.tools',
+              subject: '🎉 New User Sign-Up - Bagger',
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <h2 style="color: #6366f1;">New User Signed Up!</h2>
+                  <p>A new user just created an account on Bagger.</p>
+                  <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <p><strong>Name:</strong> ${userName}</p>
+                    <p><strong>Email:</strong> ${userEmail}</p>
+                    <p><strong>User ID:</strong> ${id}</p>
+                    <p><strong>Signed up:</strong> ${new Date().toLocaleString()}</p>
+                  </div>
+                  <p style="color: #6b7280; font-size: 14px;">
+                    View all users in your <a href="https://dashboard.clerk.com" style="color: #6366f1;">Clerk Dashboard</a>
+                  </p>
                 </div>
-                <p style="color: #6b7280; font-size: 14px;">
-                  View all users in your <a href="https://dashboard.clerk.com" style="color: #6366f1;">Clerk Dashboard</a>
-                </p>
-              </div>
-            `,
-          });
+              `,
+            });
 
-          console.log(`Admin notification sent for user: ${userEmail}`);
-        } catch (emailError) {
-          // Don't fail the webhook if email fails
-          console.error('Error sending admin notification:', emailError);
+            console.log(`Admin notification sent for user: ${userEmail}`);
+          } catch (emailError) {
+            // Don't fail the webhook if email fails
+            console.error('Error sending admin notification:', emailError);
+          }
         }
       }
     } catch (error) {
-      console.error('Error creating user in database:', error);
-      return new Response('Error creating user', {
+      console.error('Error in user.created webhook:', error);
+      return new Response('Error processing webhook', {
         status: 500,
       });
     }
