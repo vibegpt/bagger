@@ -121,9 +121,18 @@ export async function POST(req: Request) {
       }
     } catch (error) {
       console.error('Error in user.created webhook:', error);
-      return new Response('Error processing webhook', {
-        status: 500,
-      });
+      console.error('Error details:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      return new Response(
+        JSON.stringify({
+          error: 'Error processing webhook',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
     }
   }
 
