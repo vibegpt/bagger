@@ -4,6 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Coins, TrendingUp, Users, DollarSign } from "lucide-react";
 import { useZoraStats } from "@/hooks/use-zora-stats";
 import { Skeleton } from "@/components/ui/skeleton";
+import { HolderGrowthChart } from "@/components/analytics/holder-growth-chart";
+import { HolderLTVCard } from "@/components/analytics/holder-ltv-card";
+import { useHolderGrowth } from "@/hooks/analytics/use-holder-growth";
 
 interface ZoraStatsDashboardProps {
   walletAddress: string | null;
@@ -256,6 +259,42 @@ export function ZoraStatsDashboard({ walletAddress }: ZoraStatsDashboardProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Holder Lifetime Value */}
+      <HolderLTVCard
+        totalRevenue={stats.earnings.totalEarnings}
+        totalHolders={stats.creatorCoin?.holderCount || stats.contentCoins.reduce((sum, c) => sum + (c.holderCount || 0), 0)}
+        platform="zora"
+        tokenName={stats.creatorCoin?.name}
+      />
+
+      {/* Holder Growth & Retention */}
+      {stats.creatorCoin && (
+        <HolderGrowthChartWrapper
+          currentHolderCount={stats.creatorCoin.holderCount || 0}
+          tokenName={stats.creatorCoin.name}
+          platform="zora"
+        />
+      )}
     </div>
   );
+}
+
+// Wrapper component to use the hook
+function HolderGrowthChartWrapper({
+  currentHolderCount,
+  tokenName,
+  platform,
+}: {
+  currentHolderCount: number;
+  tokenName: string;
+  platform: "zora" | "pumpfun";
+}) {
+  const { data, isLoading } = useHolderGrowth(currentHolderCount, platform);
+
+  if (isLoading) {
+    return <Skeleton className="h-[400px]" />;
+  }
+
+  return <HolderGrowthChart data={data} tokenName={tokenName} platform={platform} />;
 }

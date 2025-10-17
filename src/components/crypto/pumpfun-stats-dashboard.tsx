@@ -6,6 +6,9 @@ import { TrendingUp, Rocket, Users, DollarSign } from "lucide-react";
 import { usePumpFunStats } from "@/hooks/use-pumpfun-stats";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MultiTokenDashboard } from "./multi-token-dashboard";
+import { HolderGrowthChart } from "@/components/analytics/holder-growth-chart";
+import { HolderLTVCard } from "@/components/analytics/holder-ltv-card";
+import { useHolderGrowth } from "@/hooks/analytics/use-holder-growth";
 
 interface PumpFunStatsDashboardProps {
   creatorAddress: string | null;
@@ -266,6 +269,23 @@ export function PumpFunStatsDashboard({ creatorAddress }: PumpFunStatsDashboardP
           </CardContent>
         </Card>
       )}
+
+      {/* Holder Lifetime Value */}
+      <HolderLTVCard
+        totalRevenue={stats.earnings.estimatedTotalEarnings}
+        totalHolders={stats.performance.totalBuyers}
+        platform="pumpfun"
+        tokenName="Creator Portfolio"
+      />
+
+      {/* Holder Growth & Retention */}
+      {stats.performance.topToken && (
+        <HolderGrowthChartWrapper
+          currentHolderCount={stats.performance.topToken.holderCount || 0}
+          tokenName={stats.performance.topToken.name}
+          platform="pumpfun"
+        />
+      )}
       </TabsContent>
 
       <TabsContent value="portfolio" className="space-y-6">
@@ -273,4 +293,23 @@ export function PumpFunStatsDashboard({ creatorAddress }: PumpFunStatsDashboardP
       </TabsContent>
     </Tabs>
   );
+}
+
+// Wrapper component to use the hook
+function HolderGrowthChartWrapper({
+  currentHolderCount,
+  tokenName,
+  platform,
+}: {
+  currentHolderCount: number;
+  tokenName: string;
+  platform: "zora" | "pumpfun";
+}) {
+  const { data, isLoading } = useHolderGrowth(currentHolderCount, platform);
+
+  if (isLoading) {
+    return <Skeleton className="h-[400px]" />;
+  }
+
+  return <HolderGrowthChart data={data} tokenName={tokenName} platform={platform} />;
 }
