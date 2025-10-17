@@ -7,24 +7,45 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingTokens } from "@/components/crypto/trending-tokens";
 import { CrossChainComparison } from "@/components/crypto/cross-chain-comparison";
-import { Flame, Zap, Activity } from "lucide-react";
+import { Flame, Zap, Activity, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function MiniAppPage() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
+  const [isInFrame, setIsInFrame] = useState(false);
   const [context, setContext] = useState<any>(null);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
 
   useEffect(() => {
-    const load = async () => {
-      // Initialize the Frame SDK
-      const ctx = await sdk.context;
-      setContext(ctx);
-      sdk.actions.ready();
+    // Set a timeout to show fallback if SDK doesn't load
+    const timeout = setTimeout(() => {
+      setLoadingTimeout(true);
       setIsSDKLoaded(true);
+    }, 3000);
+
+    const load = async () => {
+      try {
+        // Initialize the Frame SDK
+        const ctx = await sdk.context;
+        setContext(ctx);
+        sdk.actions.ready();
+        setIsInFrame(true);
+        setIsSDKLoaded(true);
+        clearTimeout(timeout);
+      } catch (error) {
+        // Not in a Frame environment - show browser fallback
+        console.log('[MiniApp] Not running in Frame context, showing browser fallback');
+        setIsInFrame(false);
+        setIsSDKLoaded(true);
+        clearTimeout(timeout);
+      }
     };
 
     if (sdk) {
       load();
     }
+
+    return () => clearTimeout(timeout);
   }, []);
 
   if (!isSDKLoaded) {
@@ -51,15 +72,51 @@ export default function MiniAppPage() {
             <p className="text-sm text-muted-foreground">Base & Solana Creator Coins</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Badge variant="secondary" className="bg-blue-500/20 text-blue-500">
-            Base (Zora)
-          </Badge>
-          <Badge variant="secondary" className="bg-green-500/20 text-green-500">
-            Solana (Pump.fun)
-          </Badge>
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2">
+            <Badge variant="secondary" className="bg-blue-500/20 text-blue-500">
+              Base (Zora)
+            </Badge>
+            <Badge variant="secondary" className="bg-green-500/20 text-green-500">
+              Solana (Pump.fun)
+            </Badge>
+          </div>
+          {!isInFrame && (
+            <Badge variant="outline" className="text-xs">
+              Browser Preview
+            </Badge>
+          )}
         </div>
       </div>
+
+      {/* Browser Preview Notice */}
+      {!isInFrame && (
+        <Card className="mb-6 border-blue-500/50 bg-blue-500/5">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <div className="h-8 w-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                <ExternalLink className="h-4 w-4 text-blue-500" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Preview Mode</p>
+                <p className="text-xs text-muted-foreground">
+                  You're viewing this Mini App in a browser. For the full experience with wallet
+                  connections and personalized data, open this in the Base App or Farcaster.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2"
+                  onClick={() => window.open('https://bagger.tools/crypto', '_blank')}
+                >
+                  Open Full Dashboard
+                  <ExternalLink className="h-3 w-3 ml-2" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Main Content */}
       <Tabs defaultValue="trending" className="space-y-6">
