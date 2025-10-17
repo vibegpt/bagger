@@ -336,27 +336,58 @@ export class PumpFunClient {
   }
 
   /**
-   * Get trending tokens
+   * Get trending tokens from king-of-the-hill endpoint
    */
   async getTrendingTokens(limit: number = 10): Promise<PumpFunToken[]> {
     try {
-      // Fetch from the general endpoint with sorting
-      const response = await fetch(`${PUMP_FUN_API}/api/tokens?sort=volume24h&limit=${limit}`);
+      // Use king-of-the-hill endpoint which shows trending/popular tokens
+      const response = await fetch(`${PUMP_FUN_COINS_API}/king-of-the-hill`);
 
       if (!response.ok) {
-        console.error("Failed to fetch trending tokens");
+        console.error("Failed to fetch trending tokens:", response.statusText);
         return [];
       }
 
       const data = await response.json();
-      const tokens = Array.isArray(data) ? data : data.tokens || [];
 
-      return await Promise.all(
-        tokens.slice(0, limit).map(async (tokenData: any) => {
-          const token = await this.getToken(tokenData.mint || tokenData.address);
-          return token;
-        })
-      ).then((results) => results.filter((t): t is PumpFunToken => t !== null));
+      if (!Array.isArray(data)) {
+        console.error("Unexpected response format from king-of-the-hill");
+        return [];
+      }
+
+      // Transform the data to match our PumpFunToken interface
+      const tokens: PumpFunToken[] = data.slice(0, limit).map((token: any) => ({
+        mint: token.mint,
+        name: token.name || "Unknown",
+        symbol: token.symbol || "UNKNOWN",
+        description: token.description,
+        imageUri: token.image_uri || token.image,
+        metadataUri: token.metadata_uri,
+        creator: token.creator,
+        createdTimestamp: token.created_timestamp || Date.now(),
+        marketCap: parseFloat(token.usd_market_cap || token.market_cap || "0"),
+        price: parseFloat(token.price || "0"),
+        totalSupply: 1_000_000_000,
+        volume24h: parseFloat(token.volume_24h || "0"),
+        volumeAllTime: parseFloat(token.total_volume || "0"),
+        virtualSolReserves: parseFloat(token.virtual_sol_reserves || "0"),
+        virtualTokenReserves: parseFloat(token.virtual_token_reserves || "0"),
+        realSolReserves: parseFloat(token.real_sol_reserves || "0"),
+        realTokenReserves: parseFloat(token.real_token_reserves || "0"),
+        txCount: parseInt(token.tx_count || "0"),
+        buyerCount: parseInt(token.buyer_count || "0"),
+        holderCount: parseInt(token.holder_count || token.replies || "0"),
+        complete: token.complete || false,
+        raydiumPool: token.raydium_pool,
+        nsfw: token.nsfw || false,
+        twitter: token.twitter,
+        telegram: token.telegram,
+        website: token.website,
+        kingOfTheHillTimestamp: token.king_of_the_hill_timestamp,
+        marketCapThreshold: token.market_cap_threshold,
+      }));
+
+      return tokens;
     } catch (error) {
       console.error("Error fetching trending tokens:", error);
       return [];
