@@ -8,7 +8,6 @@ import { TrendingUp, Wallet } from "lucide-react";
 import { PumpFunStatsDashboard } from "./pumpfun-stats-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TokenCardWithHolders } from "./token-card-with-holders";
-import { ShareToTwitterButton } from "./share-to-twitter-button";
 
 interface PumpFunHoldingsDashboardProps {
   walletAddress: string | null;
@@ -129,22 +128,6 @@ export function PumpFunHoldingsDashboard({ walletAddress }: PumpFunHoldingsDashb
                       {holdings.tokenCount} Pump.fun {holdings.tokenCount === 1 ? 'token' : 'tokens'}
                     </CardDescription>
                   </div>
-                  {holdings.holdings && holdings.holdings.length > 0 && (
-                    <ShareToTwitterButton
-                      cardType="bag-status"
-                      params={{
-                        totalPnl: '0', // Would need to calculate actual P&L
-                        topToken1: holdings.holdings[0]?.token?.symbol || 'N/A',
-                        topToken2: holdings.holdings[1]?.token?.symbol || 'N/A',
-                        topToken3: holdings.holdings[2]?.token?.symbol || 'N/A',
-                        topPnl1: '0', // Would need to calculate actual P&L
-                        topPnl2: '0',
-                        topPnl3: '0',
-                      }}
-                      variant="outline"
-                      size="sm"
-                    />
-                  )}
                 </div>
               </CardHeader>
               <CardContent>

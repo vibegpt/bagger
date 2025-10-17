@@ -5,7 +5,6 @@ import { DollarSign, TrendingUp, Coins, Wallet } from "lucide-react";
 import { useZoraStats } from "@/hooks/use-zora-stats";
 import { usePumpFunStats } from "@/hooks/use-pumpfun-stats";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ShareToZoraButton } from "./share-to-zora-button";
 
 interface PortfolioOverviewProps {
   ethWallet: string | null;
@@ -124,14 +123,6 @@ export function PortfolioOverview({ ethWallet, solanaWallet }: PortfolioOverview
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
-            <ShareToZoraButton
-              totalValue={formatCurrency(totalPortfolioValue)}
-              tokenCount={totalCoins}
-              topToken={topTokenName}
-              topTokenValue={topTokenValue}
-              holderCount={totalHolders}
-              userName="My"
-            />
             {ethWallet && (
               <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5">
                 <div className="h-2 w-2 rounded-full bg-green-500" />
