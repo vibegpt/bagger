@@ -1,14 +1,16 @@
 {
-  "frame": {
+  "accountAssociation": {
+    "header": "eyJmaWQiOjEzODkzNDIsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCJ9",
+    "payload": "eyJkb21haW4iOiJiYWdnZXIudG9vbHMifQ",
+    "signature": "MHgwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA"
+  },
+  "miniapp": {
     "version": "1",
-    "name": "Bagger - Base & Solana Creator Coins",
+    "name": "Bagger",
     "iconUrl": "https://bagger.tools/icon.png",
     "homeUrl": "https://bagger.tools/miniapp",
     "splashImageUrl": "https://bagger.tools/og-image.png",
     "splashBackgroundColor": "#0F172A",
     "webhookUrl": "https://bagger.tools/api/farcaster/webhook"
-  },
-  "baseBuilder": {
-    "ownerAddress": "0xeE4CA5B9A7A6BA17c12e61B7C7b12a8d7b0b2C6D"
   }
 }
