@@ -7,8 +7,8 @@ import type { PumpFunToken, PumpFunCreatorStats, PumpFunUserHoldings } from "./t
 
 const PUMP_FUN_API = "https://frontend-api.pump.fun";
 const PUMP_FUN_COINS_API = "https://frontend-api.pump.fun/coins";
-// Use public Solana RPC endpoints
-const SOLANA_RPC = "https://api.mainnet-beta.solana.com";
+// Use Helius RPC for better performance and reliability
+const SOLANA_RPC = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || "https://api.mainnet-beta.solana.com";
 
 export class PumpFunClient {
   /**
