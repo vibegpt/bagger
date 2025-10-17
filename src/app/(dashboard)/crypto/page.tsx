@@ -14,6 +14,8 @@ import { PumpFunHoldingsDashboard } from "@/components/crypto/pumpfun-holdings-d
 import { PortfolioOverview } from "@/components/crypto/portfolio-overview";
 import { PortfolioChart } from "@/components/crypto/portfolio-chart";
 import { EarningsChart } from "@/components/crypto/earnings-chart";
+import { CrossChainComparison } from "@/components/crypto/cross-chain-comparison";
+import { TrendingTokens } from "@/components/crypto/trending-tokens";
 import { useZoraStats } from "@/hooks/use-zora-stats";
 import { usePumpFunStats } from "@/hooks/use-pumpfun-stats";
 import { usePortfolioTrends } from "@/hooks/use-portfolio-trends";
@@ -101,11 +103,49 @@ export default function CryptoPage() {
       )}
 
       {/* Platform Tabs */}
-      <Tabs defaultValue="zora" className="space-y-6">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="zora">Zora (Base)</TabsTrigger>
-          <TabsTrigger value="pumpfun">Pump.fun (Solana)</TabsTrigger>
+      <Tabs defaultValue="portfolio" className="space-y-6">
+        <TabsList className="grid w-full max-w-3xl grid-cols-4">
+          <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+          <TabsTrigger value="trending">Trending</TabsTrigger>
+          <TabsTrigger value="compare">Compare</TabsTrigger>
+          <TabsTrigger value="platforms">Platforms</TabsTrigger>
         </TabsList>
+
+        {/* Portfolio Tab - Combined view */}
+        <TabsContent value="portfolio" className="space-y-6">
+          {ethWallet || solanaWallet ? (
+            <div className="grid gap-6">
+              {ethWallet && <ZoraHoldingsDashboard walletAddress={ethWallet} />}
+              {solanaWallet && <PumpFunHoldingsDashboard walletAddress={solanaWallet} />}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-center text-muted-foreground">
+                  Connect a wallet to view your portfolio
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* Trending Tokens Tab */}
+        <TabsContent value="trending" className="space-y-6">
+          <TrendingTokens />
+        </TabsContent>
+
+        {/* Cross-Chain Comparison Tab */}
+        <TabsContent value="compare" className="space-y-6">
+          <CrossChainComparison />
+        </TabsContent>
+
+        {/* Platforms Tab - Individual platforms */}
+        <TabsContent value="platforms" className="space-y-6">
+          <Tabs defaultValue="zora" className="space-y-6">
+            <TabsList className="grid w-full max-w-md grid-cols-2">
+              <TabsTrigger value="zora">Zora (Base)</TabsTrigger>
+              <TabsTrigger value="pumpfun">Pump.fun (Solana)</TabsTrigger>
+            </TabsList>
 
         {/* Zora Tab */}
         <TabsContent value="zora" className="space-y-6">
@@ -195,6 +235,8 @@ export default function CryptoPage() {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
 

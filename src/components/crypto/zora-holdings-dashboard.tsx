@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Coins, TrendingUp, Wallet } from "lucide-react";
 import { ZoraStatsDashboard } from "./zora-stats-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TokenCardWithHolders } from "./token-card-with-holders";
 import type { ZoraCreatorCoin, ZoraContentCoin } from "@/lib/integrations/zora/types";
 
 interface ZoraHoldingsDashboardProps {
@@ -82,6 +83,16 @@ export function ZoraHoldingsDashboard({ walletAddress }: ZoraHoldingsDashboardPr
     }).format(value);
   };
 
+  const formatNumber = (value: number) => {
+    if (value >= 1_000_000) {
+      return `${(value / 1_000_000).toFixed(2)}M`;
+    }
+    if (value >= 1_000) {
+      return `${(value / 1_000).toFixed(1)}K`;
+    }
+    return new Intl.NumberFormat("en-US").format(value);
+  };
+
   // Separate created vs holdings
   const createdCoins = holdings?.creatorCoins.filter((c) => !c.isOwnedByWallet) || [];
   const heldCreatorCoins = holdings?.creatorCoins.filter((c) => c.isOwnedByWallet) || [];
@@ -147,50 +158,24 @@ export function ZoraHoldingsDashboard({ walletAddress }: ZoraHoldingsDashboardPr
                 <h3 className="text-lg font-semibold mb-4">Creator Coins</h3>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {heldCreatorCoins.map((coin, index) => (
-                    <Card key={`${coin.address}-${index}`} className="cyber-border">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          {coin.imageUrl ? (
-                            <img
-                              src={coin.imageUrl}
-                              alt={coin.name}
-                              className="w-10 h-10 rounded-lg object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
-                              <Coins className="h-5 w-5 text-white" />
-                            </div>
-                          )}
-                          <Badge variant="secondary" className="bg-primary/20 text-primary">
-                            Holding
-                          </Badge>
-                        </div>
-                        <CardTitle className="mt-3 text-base">{coin.name}</CardTitle>
-                        <CardDescription className="text-xs">${coin.symbol}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">Holdings Value</span>
-                            <span className="font-semibold text-primary">
-                              {coin.holdingsValue ? formatCurrency(coin.holdingsValue) : '$0.00'}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">Tokens Held</span>
-                            <span className="font-semibold">
-                              {coin.balance ? parseFloat(coin.balance).toLocaleString(undefined, { maximumFractionDigits: 0 }) : '-'}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">24h Change</span>
-                            <span className={`font-semibold ${coin.priceChange24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                              {coin.priceChange24h >= 0 ? '+' : ''}{coin.priceChange24h.toFixed(2)}%
-                            </span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <TokenCardWithHolders
+                      key={`${coin.address}-${index}`}
+                      token={{
+                        address: coin.address,
+                        name: coin.name,
+                        symbol: coin.symbol,
+                        imageUri: coin.imageUrl,
+                        price: coin.currentPrice || 0,
+                        marketCap: coin.marketCap || 0,
+                      }}
+                      holding={{
+                        balance: coin.balance ? parseFloat(coin.balance) : 0,
+                        valueUsd: coin.holdingsValue || 0,
+                      }}
+                      platform="zora"
+                      formatCurrency={formatCurrency}
+                      formatNumber={formatNumber}
+                    />
                   ))}
                 </div>
               </div>
@@ -202,54 +187,24 @@ export function ZoraHoldingsDashboard({ walletAddress }: ZoraHoldingsDashboardPr
                 <h3 className="text-lg font-semibold mb-4">Content Coins</h3>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {heldContentCoins.map((coin, index) => (
-                    <Card key={`${coin.address}-${index}`} className="cyber-border">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          {coin.imageUrl ? (
-                            <img
-                              src={coin.imageUrl}
-                              alt={coin.name || 'Content coin'}
-                              className="w-10 h-10 rounded-lg object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-primary">
-                              <TrendingUp className="h-5 w-5 text-white" />
-                            </div>
-                          )}
-                          <Badge variant="secondary" className="bg-accent/20 text-accent">
-                            Holding
-                          </Badge>
-                        </div>
-                        <CardTitle className="mt-3 text-sm line-clamp-2">
-                          {coin.name || coin.postContent || `Post #${coin.postId.slice(0, 8)}`}
-                        </CardTitle>
-                        <CardDescription className="text-xs">
-                          by {coin.creatorAddress.slice(0, 6)}...{coin.creatorAddress.slice(-4)}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">Holdings Value</span>
-                            <span className="font-semibold text-primary">
-                              {coin.holdingsValue ? formatCurrency(coin.holdingsValue) : '$0.00'}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">Tokens Held</span>
-                            <span className="font-semibold">
-                              {coin.balance ? parseFloat(coin.balance).toLocaleString(undefined, { maximumFractionDigits: 0 }) : '-'}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">24h Change</span>
-                            <span className={`font-semibold ${coin.priceChange24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                              {coin.priceChange24h >= 0 ? '+' : ''}{(coin.priceChange24h || 0).toFixed(2)}%
-                            </span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <TokenCardWithHolders
+                      key={`${coin.address}-${index}`}
+                      token={{
+                        address: coin.address,
+                        name: coin.name || coin.postContent || `Post #${coin.postId.slice(0, 8)}`,
+                        symbol: coin.symbol || 'CONTENT',
+                        imageUri: coin.imageUrl,
+                        price: coin.currentPrice || 0,
+                        marketCap: coin.marketCap || 0,
+                      }}
+                      holding={{
+                        balance: coin.balance ? parseFloat(coin.balance) : 0,
+                        valueUsd: coin.holdingsValue || 0,
+                      }}
+                      platform="zora"
+                      formatCurrency={formatCurrency}
+                      formatNumber={formatNumber}
+                    />
                   ))}
                 </div>
               </div>

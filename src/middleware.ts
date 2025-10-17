@@ -6,10 +6,20 @@ const isProtectedRoute = createRouteMatcher([
   '/posts(.*)',
   '/analytics(.*)',
   '/settings(.*)',
+  '/admin(.*)',
+]);
+
+const isPublicRoute = createRouteMatcher([
+  '/api/share-card(.*)',
+  '/api/twitter-banner(.*)',
+  '/api/pumpfun-card(.*)',
+  '/api/weekly-report(.*)',
+  '/api/twitter-thread(.*)',
+  '/api/visualizations(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) {
+  if (!isPublicRoute(req) && isProtectedRoute(req)) {
     await auth.protect();
   }
 });

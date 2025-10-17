@@ -5,6 +5,7 @@ import { DollarSign, TrendingUp, Coins, Wallet } from "lucide-react";
 import { useZoraStats } from "@/hooks/use-zora-stats";
 import { usePumpFunStats } from "@/hooks/use-pumpfun-stats";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ShareToZoraButton } from "./share-to-zora-button";
 
 interface PortfolioOverviewProps {
   ethWallet: string | null;
@@ -90,6 +91,8 @@ export function PortfolioOverview({ ethWallet, solanaWallet }: PortfolioOverview
   const totalCoins =
     (zoraStats?.totalPosts || 0) + (pumpStats?.totalTokensCreated || 0) + (zoraStats?.creatorCoin ? 1 : 0);
 
+  const totalHolders = (zoraStats?.totalHolders || 0) + (pumpStats?.totalHolders || 0);
+
   const formatCurrency = (value: number) => {
     if (value >= 1_000_000) {
       return `$${(value / 1_000_000).toFixed(2)}M`;
@@ -105,6 +108,11 @@ export function PortfolioOverview({ ethWallet, solanaWallet }: PortfolioOverview
     }).format(value);
   };
 
+  // Find top performing token
+  const topToken = pumpStats?.topTokens?.[0] || zoraStats?.topContentCoin;
+  const topTokenName = topToken ? (typeof topToken === 'object' && 'name' in topToken ? topToken.name : 'Top Token') : 'N/A';
+  const topTokenValue = topToken ? (typeof topToken === 'object' && 'marketCap' in topToken ? formatCurrency(topToken.marketCap) : '$0') : '$0';
+
   return (
     <Card className="bg-gradient-to-br from-primary/5 via-accent/5 to-primary/5 border-primary/20">
       <CardHeader>
@@ -116,6 +124,14 @@ export function PortfolioOverview({ ethWallet, solanaWallet }: PortfolioOverview
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
+            <ShareToZoraButton
+              totalValue={formatCurrency(totalPortfolioValue)}
+              tokenCount={totalCoins}
+              topToken={topTokenName}
+              topTokenValue={topTokenValue}
+              holderCount={totalHolders}
+              userName="My"
+            />
             {ethWallet && (
               <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5">
                 <div className="h-2 w-2 rounded-full bg-green-500" />

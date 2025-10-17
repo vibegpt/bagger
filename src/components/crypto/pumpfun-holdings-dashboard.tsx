@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Wallet } from "lucide-react";
 import { PumpFunStatsDashboard } from "./pumpfun-stats-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TokenCardWithHolders } from "./token-card-with-holders";
+import { ShareToTwitterButton } from "./share-to-twitter-button";
 
 interface PumpFunHoldingsDashboardProps {
   walletAddress: string | null;
@@ -120,10 +122,30 @@ export function PumpFunHoldingsDashboard({ walletAddress }: PumpFunHoldingsDashb
             {/* Summary Card */}
             <Card className="mb-6 bg-gradient-to-br from-accent/5 via-primary/5 to-accent/5 border-accent/20">
               <CardHeader>
-                <CardTitle>Total Holdings</CardTitle>
-                <CardDescription>
-                  {holdings.tokenCount} Pump.fun {holdings.tokenCount === 1 ? 'token' : 'tokens'}
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Total Holdings</CardTitle>
+                    <CardDescription>
+                      {holdings.tokenCount} Pump.fun {holdings.tokenCount === 1 ? 'token' : 'tokens'}
+                    </CardDescription>
+                  </div>
+                  {holdings.holdings && holdings.holdings.length > 0 && (
+                    <ShareToTwitterButton
+                      cardType="bag-status"
+                      params={{
+                        totalPnl: '0', // Would need to calculate actual P&L
+                        topToken1: holdings.holdings[0]?.token?.symbol || 'N/A',
+                        topToken2: holdings.holdings[1]?.token?.symbol || 'N/A',
+                        topToken3: holdings.holdings[2]?.token?.symbol || 'N/A',
+                        topPnl1: '0', // Would need to calculate actual P&L
+                        topPnl2: '0',
+                        topPnl3: '0',
+                      }}
+                      variant="outline"
+                      size="sm"
+                    />
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold gradient-text">
@@ -134,79 +156,19 @@ export function PumpFunHoldingsDashboard({ walletAddress }: PumpFunHoldingsDashb
 
             {/* Token Holdings Grid */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {holdings.holdings.map((holding: any) => {
-                const isUnknownToken = holding.token.symbol === "UNKNOWN";
-                return (
-                  <Card key={holding.token.mint} className="cyber-border">
-                    <CardHeader>
-                      <div className="flex items-center justify-between mb-3">
-                        {holding.token.imageUri ? (
-                          <img
-                            src={holding.token.imageUri}
-                            alt={holding.token.name}
-                            className="w-12 h-12 rounded-lg object-cover"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                            <TrendingUp className="h-6 w-6 text-muted-foreground" />
-                          </div>
-                        )}
-                        <Badge
-                          variant="secondary"
-                          className={isUnknownToken ? "bg-yellow-500/20 text-yellow-500" : "bg-accent/20 text-accent"}
-                        >
-                          {isUnknownToken ? "Graduated" : "Holding"}
-                        </Badge>
-                      </div>
-                      <CardTitle className="text-base line-clamp-1">{holding.token.name}</CardTitle>
-                      <CardDescription className="text-xs">
-                        {isUnknownToken ? (
-                          <span className="font-mono text-[10px]">{holding.token.mint.slice(0, 16)}...</span>
-                        ) : (
-                          `$${holding.token.symbol}`
-                        )}
-                      </CardDescription>
-                      {isUnknownToken && (
-                        <p className="text-[10px] text-muted-foreground mt-1">
-                          May have graduated to Raydium
-                        </p>
-                      )}
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Balance</span>
-                          <span className="font-semibold">{formatNumber(holding.balance)}</span>
-                        </div>
-                        {holding.token.price > 0 && (
-                          <>
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-muted-foreground">Value</span>
-                              <span className="font-semibold text-primary">
-                                {formatCurrency(holding.valueUsd)}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-muted-foreground">Price</span>
-                              <span className="font-semibold">
-                                {formatCurrency(holding.token.price)}
-                              </span>
-                            </div>
-                          </>
-                        )}
-                        {!isUnknownToken && holding.token.marketCap > 0 && (
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">Market Cap</span>
-                            <span className="font-semibold">
-                              {formatCurrency(holding.token.marketCap)}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {holdings.holdings.map((holding: any) => (
+                <TokenCardWithHolders
+                  key={holding.token.mint}
+                  token={holding.token}
+                  holding={{
+                    balance: holding.balance,
+                    valueUsd: holding.valueUsd,
+                  }}
+                  platform="pumpfun"
+                  formatCurrency={formatCurrency}
+                  formatNumber={formatNumber}
+                />
+              ))}
             </div>
           </div>
         )}

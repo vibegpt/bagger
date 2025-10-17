@@ -423,3 +423,69 @@ model PostTokenSnapshot {
   @@index([tokenMint])
   @@index([tokenAddress])
 }
+
+// Weekly Reports (Zora vs Pump.fun comparative data)
+model WeeklyReport {
+  id                      String    @id @default(cuid())
+
+  // Report metadata
+  weekNumber              Int
+  reportDate              DateTime  @db.Date
+
+  // Zora metrics
+  zoraCreators            Int
+  zoraTraders             Int
+  zoraTradingVolume       Decimal   @db.Decimal(18, 2)
+  zoraCreatorEarnings     Decimal   @db.Decimal(18, 2)
+  zoraDailyCoins          Int
+  zoraGraduationRate      Decimal   @db.Decimal(5, 2)
+  zoraWhaleIncrease       Decimal   @db.Decimal(10, 2)
+  zoraAvgEarnings         Decimal   @db.Decimal(10, 2)
+
+  // Pump.fun metrics
+  pumpDailyLaunches       Int
+  pumpGraduationRate      Decimal   @db.Decimal(5, 2)
+  pumpDailyGraduations    Int
+  pumpDailyUsers          Int
+  pumpProfitableUsers     Decimal   @db.Decimal(5, 2)
+  pumpAvgProfit           Decimal   @db.Decimal(10, 2)
+
+  // Arena metrics (STEALTH MODE - collected but not displayed)
+  arenaTVL                Decimal?  @db.Decimal(18, 2)
+  arenaCreators           Int?
+  arenaTicketHolders      Int?
+  arenaDailyUsers         Int?
+  arenaTradingVolume      Decimal?  @db.Decimal(18, 2)
+  arenaGraduationRate     Decimal?  @db.Decimal(5, 2)
+  arenaAvgEarnings        Decimal?  @db.Decimal(10, 2)
+  arenaWhaleIncrease      Decimal?  @db.Decimal(10, 2)
+
+  // Data sources
+  zoraDataSource          String
+  pumpDataSource          String
+  arenaDataSource         String?   // Arena data source
+
+  // Generated content (stored as JSON)
+  twitterThread           Json?     // Array of tweet objects
+  insights                Json?     // Array of insight objects from consensus
+  visualizations          Json?     // URLs to generated charts
+
+  // Publishing status
+  posted                  Boolean   @default(false)
+  postedAt                DateTime?
+  twitterThreadUrl        String?   // URL to posted thread
+
+  // Engagement tracking (if available)
+  threadViews             Int?
+  threadLikes             Int?
+  threadRetweets          Int?
+  threadReplies           Int?
+
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  @@unique([weekNumber, reportDate])
+  @@index([weekNumber])
+  @@index([reportDate])
+  @@index([posted])
+}
