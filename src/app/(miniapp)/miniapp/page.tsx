@@ -7,14 +7,35 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingTokens } from "@/components/crypto/trending-tokens";
 import { CrossChainComparison } from "@/components/crypto/cross-chain-comparison";
-import { Flame, Zap, Activity, ExternalLink } from "lucide-react";
+import { PortfolioOverview } from "@/components/crypto/portfolio-overview";
+import { ZoraHoldingsDashboard } from "@/components/crypto/zora-holdings-dashboard";
+import { PumpFunHoldingsDashboard } from "@/components/crypto/pumpfun-holdings-dashboard";
+import { ZoraWalletConnect } from "@/components/crypto/zora-wallet-connect";
+import { PhantomWalletButton } from "@/components/crypto/phantom-wallet-button";
+import { Flame, Zap, Activity, ExternalLink, User, Wallet as WalletIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function MiniAppPage() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [isInFrame, setIsInFrame] = useState(false);
   const [context, setContext] = useState<any>(null);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
+  const [ethWallet, setEthWallet] = useState<string | null>(null);
+  const [solanaWallet, setSolanaWallet] = useState<string | null>(null);
+
+  // Handle wallet connections
+  const handleEthWalletConnect = (address: string) => {
+    console.log('[MiniApp] ETH wallet connected:', address);
+    setEthWallet(address || null);
+  };
+
+  const handleSolanaWalletConnect = (address: string) => {
+    console.log('[MiniApp] Solana wallet connected:', address);
+    setSolanaWallet(address || null);
+  };
+
+  const hasAnyWallet = ethWallet || solanaWallet;
 
   useEffect(() => {
     // Set a timeout to show fallback if SDK doesn't load
@@ -63,7 +84,7 @@ export default function MiniAppPage() {
     <div className="min-h-screen bg-background p-4 md:p-6">
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
+        <Link href="/" className="flex items-center gap-3 mb-2 hover:opacity-80 transition-opacity cursor-pointer">
           <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
             <Zap className="h-6 w-6 text-white" />
           </div>
@@ -71,7 +92,7 @@ export default function MiniAppPage() {
             <h1 className="text-2xl font-bold gradient-text">Bagger</h1>
             <p className="text-sm text-muted-foreground">Base & Solana Creator Coins</p>
           </div>
-        </div>
+        </Link>
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
             <Badge variant="secondary" className="bg-blue-500/20 text-blue-500">
@@ -120,7 +141,11 @@ export default function MiniAppPage() {
 
       {/* Main Content */}
       <Tabs defaultValue="trending" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="portfolio">
+            <User className="h-4 w-4 mr-2" />
+            Portfolio
+          </TabsTrigger>
           <TabsTrigger value="trending">
             <Flame className="h-4 w-4 mr-2" />
             Trending
@@ -130,6 +155,51 @@ export default function MiniAppPage() {
             Compare
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="portfolio" className="space-y-6">
+          {!hasAnyWallet ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <WalletIcon className="h-5 w-5" />
+                  Connect Your Wallets
+                </CardTitle>
+                <CardDescription>
+                  View your personalized portfolio across Base and Solana
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Base Wallet (Zora)</span>
+                    <Badge variant="secondary" className="bg-blue-500/20 text-blue-500">
+                      ETH
+                    </Badge>
+                  </div>
+                  <ZoraWalletConnect onConnect={handleEthWalletConnect} />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Solana Wallet (Pump.fun)</span>
+                    <Badge variant="secondary" className="bg-green-500/20 text-green-500">
+                      SOL
+                    </Badge>
+                  </div>
+                  <PhantomWalletButton onConnect={handleSolanaWalletConnect} />
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              {/* Portfolio Overview */}
+              <PortfolioOverview ethWallet={ethWallet} solanaWallet={solanaWallet} />
+
+              {/* Holdings Dashboards */}
+              {ethWallet && <ZoraHoldingsDashboard walletAddress={ethWallet} />}
+              {solanaWallet && <PumpFunHoldingsDashboard walletAddress={solanaWallet} />}
+            </>
+          )}
+        </TabsContent>
 
         <TabsContent value="trending" className="space-y-6">
           <TrendingTokens />
