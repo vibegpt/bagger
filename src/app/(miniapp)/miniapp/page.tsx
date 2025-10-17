@@ -10,8 +10,15 @@ import { CrossChainComparison } from "@/components/crypto/cross-chain-comparison
 import { PortfolioOverview } from "@/components/crypto/portfolio-overview";
 import { ZoraHoldingsDashboard } from "@/components/crypto/zora-holdings-dashboard";
 import { PumpFunHoldingsDashboard } from "@/components/crypto/pumpfun-holdings-dashboard";
+import { ZoraStatsDashboard } from "@/components/crypto/zora-stats-dashboard";
+import { PumpFunStatsDashboard } from "@/components/crypto/pumpfun-stats-dashboard";
+import { PortfolioChart } from "@/components/crypto/portfolio-chart";
+import { EarningsChart } from "@/components/crypto/earnings-chart";
 import { ZoraWalletConnect } from "@/components/crypto/zora-wallet-connect";
 import { PhantomWalletButton } from "@/components/crypto/phantom-wallet-button";
+import { useZoraStats } from "@/hooks/use-zora-stats";
+import { usePumpFunStats } from "@/hooks/use-pumpfun-stats";
+import { usePortfolioTrends } from "@/hooks/use-portfolio-trends";
 import { Flame, Zap, Activity, ExternalLink, User, Wallet as WalletIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -36,6 +43,25 @@ export default function MiniAppPage() {
   };
 
   const hasAnyWallet = ethWallet || solanaWallet;
+
+  // Fetch stats for creator analytics
+  const { stats: zoraStats } = useZoraStats(ethWallet);
+  const { stats: pumpStats } = usePumpFunStats(solanaWallet);
+
+  // Calculate totals for trend data
+  const zoraTotalValue = zoraStats
+    ? (zoraStats.creatorCoin?.marketCap || 0) +
+      zoraStats.performance.totalContentCoinsValue
+    : 0;
+  const pumpTotalValue = pumpStats ? pumpStats.totalMarketCap : 0;
+  const totalPortfolioValue = zoraTotalValue + pumpTotalValue;
+
+  const totalEarnings =
+    (zoraStats?.earnings.totalEarnings || 0) +
+    (pumpStats?.earnings.estimatedTotalEarnings || 0);
+
+  // Generate trend data for charts
+  const trendData = usePortfolioTrends(totalPortfolioValue, totalEarnings);
 
   useEffect(() => {
     // Set a timeout to show fallback if SDK doesn't load
@@ -165,7 +191,7 @@ export default function MiniAppPage() {
                   Connect Your Wallets
                 </CardTitle>
                 <CardDescription>
-                  View your personalized portfolio across Base and Solana
+                  Track your creator analytics across Base and Solana
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -194,9 +220,49 @@ export default function MiniAppPage() {
               {/* Portfolio Overview */}
               <PortfolioOverview ethWallet={ethWallet} solanaWallet={solanaWallet} />
 
-              {/* Holdings Dashboards */}
-              {ethWallet && <ZoraHoldingsDashboard walletAddress={ethWallet} />}
-              {solanaWallet && <PumpFunHoldingsDashboard walletAddress={solanaWallet} />}
+              {/* Charts - Show portfolio value and earnings trends */}
+              {totalPortfolioValue > 0 && (
+                <div className="grid gap-6 md:grid-cols-2">
+                  <PortfolioChart
+                    data={trendData}
+                    title="Portfolio Value"
+                    description="Track your total bag value over time"
+                  />
+                  <EarningsChart
+                    data={trendData}
+                    title="Bags Secured"
+                    description="Your earnings from creator coins"
+                  />
+                </div>
+              )}
+
+              {/* Base (Zora) Creator Stats */}
+              {ethWallet && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="bg-blue-500/20 text-blue-500">
+                      Base
+                    </Badge>
+                    <h3 className="text-lg font-semibold">Zora Creator Analytics</h3>
+                  </div>
+                  <ZoraStatsDashboard walletAddress={ethWallet} />
+                  <ZoraHoldingsDashboard walletAddress={ethWallet} />
+                </div>
+              )}
+
+              {/* Solana (Pump.fun) Creator Stats */}
+              {solanaWallet && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="bg-green-500/20 text-green-500">
+                      Solana
+                    </Badge>
+                    <h3 className="text-lg font-semibold">Pump.fun Creator Analytics</h3>
+                  </div>
+                  <PumpFunStatsDashboard creatorAddress={solanaWallet} />
+                  <PumpFunHoldingsDashboard walletAddress={solanaWallet} />
+                </div>
+              )}
             </>
           )}
         </TabsContent>
