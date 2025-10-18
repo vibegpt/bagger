@@ -55,8 +55,7 @@ export default function LandingPage() {
           for the Creator Coin Economy
         </h1>
         <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Track your tokens across Pump.fun and Zora, or explore the performance of any creator on the platform.
-          Discover what drives engagement. All in one dashboard built for the creator economy.
+          Track tokens, streams, and creator markets across Web3
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/sign-up">
