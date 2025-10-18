@@ -6,6 +6,7 @@ import { useZoraStats } from "@/hooks/use-zora-stats";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HolderGrowthChart } from "@/components/analytics/holder-growth-chart";
 import { HolderLTVCard } from "@/components/analytics/holder-ltv-card";
+import { ContentPerformanceTable } from "@/components/analytics/content-performance-table";
 import { useHolderGrowth } from "@/hooks/analytics/use-holder-growth";
 
 interface ZoraStatsDashboardProps {
@@ -220,44 +221,12 @@ export function ZoraStatsDashboard({ walletAddress }: ZoraStatsDashboardProps) {
         </Card>
       </div>
 
-      {/* Top Content Coins */}
+      {/* Content Performance Table */}
       {stats.contentCoins.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Content Coins</CardTitle>
-            <CardDescription>Your highest performing posts</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {stats.contentCoins
-                .sort((a, b) => b.marketCap - a.marketCap)
-                .slice(0, 5)
-                .map((coin) => (
-                  <div
-                    key={coin.id}
-                    className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0"
-                  >
-                    <div className="flex-1">
-                      <p className="text-sm font-medium line-clamp-1">
-                        {coin.postContent || "Untitled Post"}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatCurrency(coin.price)} per token
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-semibold">
-                        {formatCurrency(coin.marketCap)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatCurrency(coin.volume24h)} 24h vol
-                      </p>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </CardContent>
-        </Card>
+        <ContentPerformanceTable
+          contentCoins={stats.contentCoins}
+          totalEarnings={stats.earnings.totalEarnings}
+        />
       )}
 
       {/* Holder Lifetime Value */}

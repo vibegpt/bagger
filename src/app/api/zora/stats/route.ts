@@ -9,12 +9,6 @@ import type { Address } from "viem";
  */
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const searchParams = request.nextUrl.searchParams;
     const address = searchParams.get("address");
 
@@ -25,7 +19,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch comprehensive creator stats
+    // Public access - no authentication required for viewing creator stats
+    // This enables public creator profile pages
     const stats = await zoraClient.getCreatorStats(address as Address);
 
     return NextResponse.json({

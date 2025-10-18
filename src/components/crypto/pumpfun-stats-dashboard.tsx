@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MultiTokenDashboard } from "./multi-token-dashboard";
 import { HolderGrowthChart } from "@/components/analytics/holder-growth-chart";
 import { HolderLTVCard } from "@/components/analytics/holder-ltv-card";
+import { BondingSuccessCard } from "@/components/analytics/bonding-success-card";
 import { useHolderGrowth } from "@/hooks/analytics/use-holder-growth";
 
 interface PumpFunStatsDashboardProps {
@@ -220,6 +221,14 @@ export function PumpFunStatsDashboard({ creatorAddress }: PumpFunStatsDashboardP
           </CardContent>
         </Card>
       </div>
+
+      {/* Bonding Success Metrics */}
+      <BondingSuccessCard
+        tokens={stats.tokens}
+        totalTokensCreated={stats.totalTokensCreated}
+        successfulTokens={stats.successfulTokens}
+        successRate={stats.performance.successRate}
+      />
 
       {/* Token List */}
       {stats.tokens.length > 0 && (
