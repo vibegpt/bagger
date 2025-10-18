@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Zap, TrendingUp, BarChart3, Video, MessageSquare, CheckCircle2, ArrowRight, Coins, Users, Activity, Search, Trophy, ExternalLink, DollarSign } from "lucide-react";
 
 export default function LandingPage() {
@@ -153,17 +154,25 @@ export default function LandingPage() {
                     #1 Zora
                   </Badge>
                 </div>
-                <div className="space-y-2">
-                  <p className="font-semibold text-sm">Top Zora Creator</p>
-                  <code className="text-xs text-muted-foreground block">0x1234...7890</code>
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t text-xs">
-                    <div>
-                      <p className="text-muted-foreground">Market Cap</p>
-                      <p className="font-semibold">$1.25M</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Holders</p>
-                      <p className="font-semibold">2,450</p>
+                <div className="flex items-start gap-3">
+                  <Avatar className="size-12 border-2 border-primary/20">
+                    <AvatarImage src="" alt="Top Zora Creator" />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white font-bold">
+                      Z1
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 space-y-2">
+                    <p className="font-semibold text-sm">Top Zora Creator</p>
+                    <code className="text-xs text-muted-foreground block">0x1234...7890</code>
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t text-xs">
+                      <div>
+                        <p className="text-muted-foreground">Market Cap</p>
+                        <p className="font-semibold">$1.25M</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Holders</p>
+                        <p className="font-semibold">2,450</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -184,17 +193,25 @@ export default function LandingPage() {
                     #1 Pump.fun
                   </Badge>
                 </div>
-                <div className="space-y-2">
-                  <p className="font-semibold text-sm">Top Pump Creator</p>
-                  <code className="text-xs text-muted-foreground block">DpQF...BZX8</code>
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t text-xs">
-                    <div>
-                      <p className="text-muted-foreground">Market Cap</p>
-                      <p className="font-semibold">$2.50M</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Success Rate</p>
-                      <p className="font-semibold text-green-500">85%</p>
+                <div className="flex items-start gap-3">
+                  <Avatar className="size-12 border-2 border-accent/20">
+                    <AvatarImage src="" alt="Top Pump Creator" />
+                    <AvatarFallback className="bg-gradient-to-br from-accent to-primary text-white font-bold">
+                      P1
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 space-y-2">
+                    <p className="font-semibold text-sm">Top Pump Creator</p>
+                    <code className="text-xs text-muted-foreground block">DpQF...BZX8</code>
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t text-xs">
+                      <div>
+                        <p className="text-muted-foreground">Market Cap</p>
+                        <p className="font-semibold">$2.50M</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Success Rate</p>
+                        <p className="font-semibold text-green-500">85%</p>
+                      </div>
                     </div>
                   </div>
                 </div>

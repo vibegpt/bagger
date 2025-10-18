@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Zap, TrendingUp, Users, DollarSign, Trophy, Medal, Award, ExternalLink } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -132,6 +133,14 @@ export default function LeaderboardPage() {
                 <div className="flex items-center justify-center w-12">
                   {getRankIcon(entry.rank)}
                 </div>
+
+                {/* Avatar */}
+                <Avatar className="size-10 border-2 border-muted">
+                  <AvatarImage src="" alt={entry.name || `Creator #${entry.rank}`} />
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white text-xs font-bold">
+                    {entry.rank}
+                  </AvatarFallback>
+                </Avatar>
 
                 {/* Creator Info */}
                 <div className="flex-1 min-w-0">
