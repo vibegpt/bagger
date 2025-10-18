@@ -40,20 +40,23 @@ export default function LandingPage() {
       <section className="container mx-auto px-4 py-24 text-center">
         <div className="flex flex-wrap justify-center gap-2 mb-6">
           <Badge className="bg-green-500/10 text-green-500 border-green-500/20" variant="outline">
-            🔒 Read-Only • No Private Keys
+            🔓 Free Public Discovery
           </Badge>
           <Badge className="bg-primary/10 text-primary border-primary/20" variant="outline">
             Track Pump.fun & Zora
           </Badge>
+          <Badge className="bg-accent/10 text-accent border-accent/20" variant="outline">
+            Advanced Analytics for Creators
+          </Badge>
         </div>
         <h1 className="text-5xl md:text-7xl font-bold mb-6">
-          The First Analytics Platform
+          <span className="gradient-text">The Analytics Platform</span>
           <br />
-          <span className="gradient-text">Built for Web3 Creators</span>
+          for the Creator Coin Economy
         </h1>
         <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Track your tokens across Pump.fun and Zora. Correlate streams with token performance.
-          Discover what drives engagement. All in one dashboard built specifically for creators.
+          Track your tokens across Pump.fun and Zora, or explore the performance of any creator on the platform.
+          Discover what drives engagement. All in one dashboard built for the creator economy.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/sign-up">
@@ -62,14 +65,14 @@ export default function LandingPage() {
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
-          <Link href="#features">
+          <Link href="/leaderboard">
             <Button size="lg" variant="outline" className="text-lg px-8">
-              See Features
+              Explore Top Creators
             </Button>
           </Link>
         </div>
         <p className="mt-6 text-sm text-muted-foreground">
-          100% Free • No Credit Card Required • Unlimited Tokens
+          Free Public Discovery • Advanced Analytics for Creators • No Credit Card Required
         </p>
       </section>
 
