@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Zap, TrendingUp, BarChart3, Video, MessageSquare, CheckCircle2, ArrowRight, Coins, Users, Activity, Search, Trophy, ExternalLink, DollarSign } from "lucide-react";
+import { TrendingCreators } from "@/components/marketing/trending-creators";
+import { Zap, TrendingUp, BarChart3, Video, MessageSquare, CheckCircle2, ArrowRight, Coins, Users, Activity, Search, Trophy, DollarSign } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -142,103 +142,8 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Top Creators Preview */}
-        <div className="grid gap-4 md:grid-cols-3 max-w-5xl mx-auto mb-8">
-          {/* Zora Top Creator */}
-          <Link href="/creator/0x1234567890123456789012345678901234567890?platform=zora">
-            <Card className="hover:border-primary/50 transition-all border-primary/30 bg-gradient-to-r from-primary/5 to-transparent h-full">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Trophy className="h-5 w-5 text-yellow-500" />
-                  <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-                    #1 Zora
-                  </Badge>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Avatar className="size-12 border-2 border-primary/20">
-                    <AvatarImage src="" alt="Top Zora Creator" />
-                    <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white font-bold">
-                      Z1
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 space-y-2">
-                    <p className="font-semibold text-sm">Top Zora Creator</p>
-                    <code className="text-xs text-muted-foreground block">0x1234...7890</code>
-                    <div className="grid grid-cols-2 gap-2 pt-2 border-t text-xs">
-                      <div>
-                        <p className="text-muted-foreground">Market Cap</p>
-                        <p className="font-semibold">$1.25M</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Holders</p>
-                        <p className="font-semibold">2,450</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center justify-end mt-3 text-xs text-muted-foreground">
-                  View Profile <ExternalLink className="h-3 w-3 ml-1" />
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          {/* Pump.fun Top Creator */}
-          <Link href="/creator/DpQFyPoV44bXpw7qmACqX7ghC8hxxmFD5HDA1CthBZX8?platform=pumpfun">
-            <Card className="hover:border-accent/50 transition-all border-accent/30 bg-gradient-to-r from-accent/5 to-transparent h-full">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Trophy className="h-5 w-5 text-yellow-500" />
-                  <Badge variant="outline" className="text-xs bg-accent/10 text-accent border-accent/20">
-                    #1 Pump.fun
-                  </Badge>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Avatar className="size-12 border-2 border-accent/20">
-                    <AvatarImage src="" alt="Top Pump Creator" />
-                    <AvatarFallback className="bg-gradient-to-br from-accent to-primary text-white font-bold">
-                      P1
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 space-y-2">
-                    <p className="font-semibold text-sm">Top Pump Creator</p>
-                    <code className="text-xs text-muted-foreground block">DpQF...BZX8</code>
-                    <div className="grid grid-cols-2 gap-2 pt-2 border-t text-xs">
-                      <div>
-                        <p className="text-muted-foreground">Market Cap</p>
-                        <p className="font-semibold">$2.50M</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Success Rate</p>
-                        <p className="font-semibold text-green-500">85%</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center justify-end mt-3 text-xs text-muted-foreground">
-                  View Profile <ExternalLink className="h-3 w-3 ml-1" />
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          {/* Leaderboard CTA */}
-          <Link href="/leaderboard">
-            <Card className="hover:border-primary/50 transition-all border-dashed h-full flex items-center justify-center">
-              <CardContent className="p-4 text-center">
-                <Trophy className="h-8 w-8 text-primary mx-auto mb-3" />
-                <p className="font-semibold mb-2">View Full Leaderboard</p>
-                <p className="text-xs text-muted-foreground mb-3">
-                  See rankings for all top creators
-                </p>
-                <Button variant="outline" size="sm" className="w-full">
-                  Explore Rankings
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
+        {/* Top Creators Preview - Dynamic Data */}
+        <TrendingCreators />
       </section>
 
       {/* Creator Conversion Card - Compact */}
