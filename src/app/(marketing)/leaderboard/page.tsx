@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ interface LeaderboardEntry {
   rank: number;
   address: string;
   name?: string;
+  imageUrl?: string;
   totalMarketCap: number;
   totalVolume: number;
   totalHolders: number;
@@ -22,75 +23,40 @@ interface LeaderboardEntry {
 }
 
 export default function LeaderboardPage() {
-  const [sortBy, setSortBy] = useState<"marketCap" | "volume" | "holders">("marketCap");
+  const [zoraLeaderboard, setZoraLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [pumpfunLeaderboard, setPumpfunLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data for demonstration
-  // In production, this would come from an API endpoint that aggregates creator stats
-  const zoraLeaderboard: LeaderboardEntry[] = [
-    {
-      rank: 1,
-      address: "0x1234567890123456789012345678901234567890",
-      name: "Top Zora Creator #1",
-      totalMarketCap: 1250000,
-      totalVolume: 850000,
-      totalHolders: 2450,
-      platform: "zora",
-    },
-    {
-      rank: 2,
-      address: "0x2345678901234567890123456789012345678901",
-      name: "Rising Star Creator",
-      totalMarketCap: 980000,
-      totalVolume: 720000,
-      totalHolders: 1890,
-      platform: "zora",
-    },
-    {
-      rank: 3,
-      address: "0x3456789012345678901234567890123456789012",
-      name: "Content King",
-      totalMarketCap: 850000,
-      totalVolume: 650000,
-      totalHolders: 1650,
-      platform: "zora",
-    },
-  ];
+  useEffect(() => {
+    async function fetchLeaderboards() {
+      try {
+        const [zoraRes, pumpfunRes] = await Promise.all([
+          fetch("/api/leaderboard?platform=zora&limit=10"),
+          fetch("/api/leaderboard?platform=pumpfun&limit=10"),
+        ]);
 
-  const pumpfunLeaderboard: LeaderboardEntry[] = [
-    {
-      rank: 1,
-      address: "DpQFyPoV44bXpw7qmACqX7ghC8hxxmFD5HDA1CthBZX8",
-      name: "Top Pump Creator #1",
-      totalMarketCap: 2500000,
-      totalVolume: 1800000,
-      totalHolders: 3200,
-      successRate: 85,
-      tokensCreated: 12,
-      platform: "pumpfun",
-    },
-    {
-      rank: 2,
-      address: "EpQFyPoV44bXpw7qmACqX7ghC8hxxmFD5HDA1CthBZX9",
-      name: "Serial Token Launcher",
-      totalMarketCap: 1950000,
-      totalVolume: 1400000,
-      totalHolders: 2800,
-      successRate: 72,
-      tokensCreated: 18,
-      platform: "pumpfun",
-    },
-    {
-      rank: 3,
-      address: "FpQFyPoV44bXpw7qmACqX7ghC8hxxmFD5HDA1CthBZY0",
-      name: "Community Builder",
-      totalMarketCap: 1650000,
-      totalVolume: 1200000,
-      totalHolders: 2400,
-      successRate: 90,
-      tokensCreated: 8,
-      platform: "pumpfun",
-    },
-  ];
+        if (zoraRes.ok) {
+          const zoraData = await zoraRes.json();
+          if (zoraData.success) {
+            setZoraLeaderboard(zoraData.data);
+          }
+        }
+
+        if (pumpfunRes.ok) {
+          const pumpfunData = await pumpfunRes.json();
+          if (pumpfunData.success) {
+            setPumpfunLeaderboard(pumpfunData.data);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch leaderboards:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchLeaderboards();
+  }, []);
 
   const formatCurrency = (value: number) => {
     if (value >= 1000000) {
@@ -116,44 +82,62 @@ export default function LeaderboardPage() {
     return <span className="text-lg font-bold text-muted-foreground">#{rank}</span>;
   };
 
-  const LeaderboardTable = ({ entries, platform }: { entries: LeaderboardEntry[]; platform: "zora" | "pumpfun" }) => (
-    <div className="space-y-3">
-      {entries.map((entry) => (
-        <Link
-          key={entry.address}
-          href={`/creator/${entry.address}?platform=${platform}`}
-          className="block"
-        >
-          <Card className={`hover:border-primary/50 transition-all ${
-            entry.rank <= 3 ? "border-primary/30 bg-gradient-to-r from-primary/5 to-transparent" : ""
-          }`}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-4">
-                {/* Rank */}
-                <div className="flex items-center justify-center w-12">
-                  {getRankIcon(entry.rank)}
-                </div>
+  const LeaderboardTable = ({ entries, platform }: { entries: LeaderboardEntry[]; platform: "zora" | "pumpfun" }) => {
+    if (loading) {
+      return (
+        <div className="space-y-3">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-4">
+                <div className="h-16 bg-muted rounded" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      );
+    }
 
-                {/* Avatar */}
-                <Avatar className="size-10 border-2 border-muted">
-                  <AvatarImage src="" alt={entry.name || `Creator #${entry.rank}`} />
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white text-xs font-bold">
-                    {entry.rank}
-                  </AvatarFallback>
-                </Avatar>
+    if (entries.length === 0) {
+      return (
+        <Card className="border-dashed">
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground">No leaderboard data available yet.</p>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    return (
+      <div className="space-y-3">
+        {entries.map((entry) => (
+          <Link
+            key={entry.address}
+            href={`/creator/${entry.address}?platform=${platform}`}
+            className="block"
+          >
+            <Card className={`hover:border-primary/50 transition-all ${
+              entry.rank <= 3 ? "border-primary/30 bg-gradient-to-r from-primary/5 to-transparent" : ""
+            }`}>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  {/* Rank */}
+                  <div className="flex items-center justify-center w-12">
+                    {getRankIcon(entry.rank)}
+                  </div>
+
+                  {/* Avatar */}
+                  <Avatar className="size-10 border-2 border-muted">
+                    <AvatarImage src={entry.imageUrl || ""} alt={entry.name || `Creator #${entry.rank}`} />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white text-xs font-bold">
+                      {entry.name?.slice(0, 2).toUpperCase() || entry.rank}
+                    </AvatarFallback>
+                  </Avatar>
 
                 {/* Creator Info */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="font-semibold truncate">
-                      {entry.name || `Creator #${entry.rank}`}
-                    </p>
-                    {entry.rank <= 3 && (
-                      <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-                        Top {entry.rank}
-                      </Badge>
-                    )}
-                  </div>
+                  <p className="font-semibold truncate mb-1">
+                    {entry.name || `Creator #${entry.rank}`}
+                  </p>
                   <code className="text-xs text-muted-foreground">
                     {formatAddress(entry.address)}
                   </code>
@@ -207,7 +191,8 @@ export default function LeaderboardPage() {
         </Link>
       ))}
     </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -340,34 +325,36 @@ export default function LeaderboardPage() {
       </section>
 
       {/* Stats Banner */}
-      <section className="container mx-auto px-4 py-12">
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card className="text-center border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-            <CardHeader>
-              <CardTitle className="text-3xl font-bold gradient-text">
-                {zoraLeaderboard.reduce((sum, e) => sum + e.totalHolders, 0).toLocaleString()}
-              </CardTitle>
-              <CardDescription>Total Holders (Zora)</CardDescription>
-            </CardHeader>
-          </Card>
-          <Card className="text-center border-accent/20 bg-gradient-to-br from-accent/5 to-transparent">
-            <CardHeader>
-              <CardTitle className="text-3xl font-bold gradient-text">
-                {formatCurrency(pumpfunLeaderboard.reduce((sum, e) => sum + e.totalMarketCap, 0))}
-              </CardTitle>
-              <CardDescription>Combined Market Cap (Pump.fun)</CardDescription>
-            </CardHeader>
-          </Card>
-          <Card className="text-center border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent">
-            <CardHeader>
-              <CardTitle className="text-3xl font-bold text-green-500">
-                100% Free
-              </CardTitle>
-              <CardDescription>Public Leaderboard Access</CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-      </section>
+      {!loading && (zoraLeaderboard.length > 0 || pumpfunLeaderboard.length > 0) && (
+        <section className="container mx-auto px-4 py-12">
+          <div className="grid gap-6 md:grid-cols-3">
+            <Card className="text-center border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+              <CardHeader>
+                <CardTitle className="text-3xl font-bold gradient-text">
+                  {zoraLeaderboard.reduce((sum, e) => sum + e.totalHolders, 0).toLocaleString()}
+                </CardTitle>
+                <CardDescription>Total Holders (Zora)</CardDescription>
+              </CardHeader>
+            </Card>
+            <Card className="text-center border-accent/20 bg-gradient-to-br from-accent/5 to-transparent">
+              <CardHeader>
+                <CardTitle className="text-3xl font-bold gradient-text">
+                  {formatCurrency(pumpfunLeaderboard.reduce((sum, e) => sum + e.totalMarketCap, 0))}
+                </CardTitle>
+                <CardDescription>Combined Market Cap (Pump.fun)</CardDescription>
+              </CardHeader>
+            </Card>
+            <Card className="text-center border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent">
+              <CardHeader>
+                <CardTitle className="text-3xl font-bold text-green-500">
+                  100% Free
+                </CardTitle>
+                <CardDescription>Public Leaderboard Access</CardDescription>
+              </CardHeader>
+            </Card>
+          </div>
+        </section>
+      )}
 
       {/* CTA Section */}
       <section className="container mx-auto px-4 py-12">
