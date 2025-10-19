@@ -84,6 +84,35 @@ export function TrendingCreators() {
     );
   }
 
+  // Show Coming Soon if no data
+  if (!zoraCreator && !pumpfunCreator) {
+    return (
+      <div className="max-w-5xl mx-auto mb-8">
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+          <CardContent className="py-12 text-center">
+            <div className="max-w-md mx-auto space-y-4">
+              <div className="flex justify-center">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Trophy className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+              <h3 className="text-lg font-bold">Top Creators Coming Soon</h3>
+              <p className="text-sm text-muted-foreground">
+                We're building our creator rankings. Search for any creator or token to see their stats now.
+              </p>
+              <Link href="/discover">
+                <Button className="glow-primary">
+                  <ArrowRight className="h-4 w-4 mr-2" />
+                  Search Creators & Tokens
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-4 md:grid-cols-3 max-w-5xl mx-auto mb-8">
       {/* Zora Top Creator */}

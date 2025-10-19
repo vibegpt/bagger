@@ -97,11 +97,36 @@ export default function LeaderboardPage() {
       );
     }
 
+    // Show "Coming Soon" state instead of empty
     if (entries.length === 0) {
       return (
-        <Card className="border-dashed">
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">No leaderboard data available yet.</p>
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+          <CardContent className="py-16 text-center">
+            <div className="max-w-md mx-auto space-y-4">
+              <div className="flex justify-center">
+                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Trophy className="h-8 w-8 text-primary" />
+                </div>
+              </div>
+              <h3 className="text-xl font-bold">Leaderboard Coming Soon</h3>
+              <p className="text-muted-foreground">
+                We're building our creator index to show you the top performers on {platform === "zora" ? "Zora" : "Pump.fun"}.
+                In the meantime, you can search for any creator or token address to see their stats.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                <Link href="/discover">
+                  <Button className="glow-primary">
+                    <Search className="h-4 w-4 mr-2" />
+                    Search Creators & Tokens
+                  </Button>
+                </Link>
+                <Link href="/sign-up">
+                  <Button variant="outline">
+                    Get Notified When Ready
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </CardContent>
         </Card>
       );
