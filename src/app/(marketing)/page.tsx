@@ -124,21 +124,18 @@ export default function LandingPage() {
 
           {/* Quick Search */}
           <div className="max-w-md mx-auto mb-8">
-            <div className="flex gap-2">
+            <Link href="/discover" className="flex gap-2">
               <Input
                 type="text"
                 placeholder="Search any creator address..."
-                className="flex-1"
-                onClick={() => window.location.href = '/discover'}
+                className="flex-1 cursor-pointer"
                 readOnly
               />
-              <Link href="/discover">
-                <Button className="glow-primary">
-                  <Search className="h-4 w-4 mr-2" />
-                  Search
-                </Button>
-              </Link>
-            </div>
+              <Button className="glow-primary">
+                <Search className="h-4 w-4 mr-2" />
+                Search
+              </Button>
+            </Link>
           </div>
         </div>
 
