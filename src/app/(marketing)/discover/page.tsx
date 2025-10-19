@@ -11,11 +11,17 @@ import { Zap, Search, TrendingUp, Users, ArrowRight, Info } from "lucide-react";
 export default function DiscoverPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [platform, setPlatform] = useState<"zora" | "pumpfun">("zora");
+  const [searchType, setSearchType] = useState<"creator" | "token">("token");
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/creator/${searchQuery.trim()}?platform=${platform}`;
+      const query = searchQuery.trim();
+      if (searchType === "token") {
+        window.location.href = `/token/${query}?platform=${platform}`;
+      } else {
+        window.location.href = `/creator/${query}?platform=${platform}`;
+      }
     }
   };
 
@@ -93,6 +99,24 @@ export default function DiscoverPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Search Type Selector */}
+              <div className="flex gap-2">
+                <Button
+                  variant={searchType === "token" ? "default" : "outline"}
+                  onClick={() => setSearchType("token")}
+                  className="flex-1"
+                >
+                  🪙 Token Address
+                </Button>
+                <Button
+                  variant={searchType === "creator" ? "default" : "outline"}
+                  onClick={() => setSearchType("creator")}
+                  className="flex-1"
+                >
+                  👤 Creator Wallet
+                </Button>
+              </div>
+
               {/* Platform Selector */}
               <div className="flex gap-2">
                 <Button
@@ -116,9 +140,13 @@ export default function DiscoverPage() {
                 <Input
                   type="text"
                   placeholder={
-                    platform === "zora"
-                      ? "0x... (Base wallet address)"
-                      : "Solana wallet address"
+                    searchType === "token"
+                      ? platform === "zora"
+                        ? "0x... (Creator Coin or Content Coin address)"
+                        : "Token mint address"
+                      : platform === "zora"
+                      ? "0x... (Creator wallet address)"
+                      : "Creator wallet address"
                   }
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -134,7 +162,9 @@ export default function DiscoverPage() {
               <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
                 <Info className="h-4 w-4 text-primary mt-0.5" />
                 <p className="text-xs text-muted-foreground">
-                  All creator stats are publicly viewable on-chain data. No login required.
+                  {searchType === "token"
+                    ? "Search by token address to see basic stats. Unlock full creator analytics with premium."
+                    : "Search by creator wallet to see all their tokens and advanced analytics."}
                 </p>
               </div>
             </CardContent>
