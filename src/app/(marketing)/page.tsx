@@ -57,7 +57,7 @@ export default function LandingPage() {
           for the Creator Coin Economy
         </h1>
         <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Track tokens, streams, and creator markets across Web3
+          Search any token for free. Track your creator portfolio with advanced analytics.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/sign-up">
@@ -66,9 +66,9 @@ export default function LandingPage() {
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
-          <Link href="/leaderboard">
+          <Link href="/discover">
             <Button size="lg" variant="outline" className="text-lg px-8">
-              Explore Top Creators
+              Search Tokens Free
             </Button>
           </Link>
         </div>
