@@ -47,6 +47,14 @@ export async function GET(request: NextRequest) {
         );
       }
 
+      // Try multiple image fields and fallbacks
+      const imageUrl =
+        coin.image ||
+        coin.imageUrl ||
+        coin.metadata?.image ||
+        coin.metadata?.imageUrl ||
+        (coin.creatorAddress ? `https://zora.co/api/avatar/${coin.creatorAddress}` : undefined);
+
       return NextResponse.json({
         success: true,
         platform: "zora",
@@ -55,7 +63,7 @@ export async function GET(request: NextRequest) {
           creatorAddress: coin.creatorAddress, // Key field for upgrade CTA
           name: coin.name,
           symbol: coin.symbol,
-          imageUrl: coin.image || coin.imageUrl || coin.metadata?.image,
+          imageUrl: imageUrl,
           totalSupply: coin.totalSupply,
           marketCap: parseFloat(coin.marketCap || "0"),
           price: parseFloat(coin.tokenPrice?.priceInUsdc || "0"),
@@ -68,11 +76,40 @@ export async function GET(request: NextRequest) {
       });
     } else if (detectedPlatform === "pumpfun") {
       // Fetch token from Pump.fun
-      const token = await pumpFunClient.getToken(address);
+      let token = await pumpFunClient.getToken(address);
 
+      // If Pump.fun API fails (Cloudflare blocks), try DexScreener as fallback
       if (!token) {
+        console.log(`Pump.fun API failed for ${address}, trying DexScreener fallback...`);
+        const marketData = await pumpFunClient.getTokenMarketData(address);
+
+        if (marketData) {
+          // Create fallback token data with full market data from DexScreener
+          return NextResponse.json({
+            success: true,
+            platform: "pumpfun",
+            data: {
+              address: address,
+              creatorAddress: undefined,
+              name: marketData.name,
+              symbol: marketData.symbol,
+              imageUrl: marketData.imageUri,
+              description: "Token data from DexScreener (graduated from Pump.fun to Raydium)",
+              totalSupply: "1000000000",
+              marketCap: marketData.marketCap,
+              price: marketData.price,
+              priceChange24h: marketData.priceChange24h,
+              volume24h: marketData.volume24h,
+              volumeAllTime: marketData.volume24h, // Use 24h as proxy for all-time
+              holderCount: 0, // Not available from DexScreener
+              complete: true, // Assume graduated
+              createdAt: new Date(),
+            },
+          });
+        }
+
         return NextResponse.json(
-          { error: "Token not found on Pump.fun" },
+          { error: "Token not found on Pump.fun or DexScreener" },
           { status: 404 }
         );
       }
@@ -87,7 +124,7 @@ export async function GET(request: NextRequest) {
           symbol: token.symbol,
           imageUrl: token.imageUri,
           description: token.description,
-          totalSupply: token.totalSupply,
+          totalSupply: token.totalSupply.toString(),
           marketCap: token.marketCap,
           price: token.price,
           volume24h: token.volume24h,

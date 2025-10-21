@@ -174,6 +174,59 @@ export class PumpFunClient {
   }
 
   /**
+   * Get full market data from DexScreener (works for graduated tokens)
+   */
+  async getTokenMarketData(mintAddress: string): Promise<{
+    name: string;
+    symbol: string;
+    imageUri?: string;
+    price: number;
+    marketCap: number;
+    volume24h: number;
+    liquidity: number;
+    priceChange24h?: number;
+    holderCount?: number;
+  } | null> {
+    try {
+      const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${mintAddress}`);
+
+      if (!response.ok) {
+        console.log(`DexScreener API error for ${mintAddress}`);
+        return null;
+      }
+
+      const data = await response.json();
+
+      if (!data.pairs || data.pairs.length === 0) {
+        console.log(`No DEX data found for ${mintAddress}`);
+        return null;
+      }
+
+      // Get the first pair (usually the most liquid)
+      const pair = data.pairs[0];
+      const baseToken = pair.baseToken;
+
+      const marketData = {
+        name: baseToken.name || mintAddress.slice(0, 8) + "...",
+        symbol: baseToken.symbol || "UNKNOWN",
+        imageUri: pair.info?.imageUrl,
+        price: parseFloat(pair.priceUsd || "0"),
+        marketCap: parseFloat(pair.marketCap || pair.fdv || "0"),
+        volume24h: parseFloat(pair.volume?.h24 || "0"),
+        liquidity: parseFloat(pair.liquidity?.usd || "0"),
+        priceChange24h: parseFloat(pair.priceChange?.h24 || "0"),
+        holderCount: undefined, // Not available in DexScreener
+      };
+
+      console.log(`Got DexScreener market data for ${mintAddress}: ${marketData.name} (${marketData.symbol}) - Price: $${marketData.price}, MC: $${marketData.marketCap}, Vol: $${marketData.volume24h}`);
+      return marketData;
+    } catch (error) {
+      console.error(`Error fetching market data from DexScreener for ${mintAddress}:`, error);
+      return null;
+    }
+  }
+
+  /**
    * Get token price from Jupiter API (fallback when Pump.fun doesn't have data)
    */
   async getTokenPriceFromJupiter(mintAddress: string): Promise<number> {

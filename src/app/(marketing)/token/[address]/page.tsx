@@ -271,7 +271,30 @@ export default function TokenPage() {
           </Card>
         </div>
 
-        {/* Upgrade CTA */}
+        {/* Creator CTA - "Is this YOUR token?" */}
+        <Card className="border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent mb-8">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div>
+                <p className="font-semibold mb-1 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-green-500" />
+                  Is this your token?
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Track your revenue, predict LTV, get churn alerts, and optimize your creator strategy with Bagger
+                </p>
+              </div>
+              <Link href="/sign-up">
+                <Button className="glow-primary whitespace-nowrap">
+                  Track Your Token Free
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Upgrade CTA - View Creator Profile */}
         {token.creatorAddress && (
           <Card className="border-primary/20 bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10">
             <CardContent className="p-8">

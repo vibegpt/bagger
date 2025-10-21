@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Zap, TrendingUp, Users, DollarSign, Trophy, Medal, Award, ExternalLink } from "lucide-react";
+import { Zap, TrendingUp, Users, DollarSign, Trophy, Medal, Award, ExternalLink, Search } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface LeaderboardEntry {
@@ -169,14 +169,10 @@ export default function LeaderboardPage() {
                 </div>
 
                 {/* Stats Grid */}
-                <div className="hidden md:grid grid-cols-3 gap-6 text-right">
+                <div className="hidden md:grid grid-cols-2 gap-6 text-right">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Market Cap</p>
                     <p className="text-sm font-semibold">{formatCurrency(entry.totalMarketCap)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Volume</p>
-                    <p className="text-sm font-semibold">{formatCurrency(entry.totalVolume)}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Holders</p>
@@ -197,14 +193,10 @@ export default function LeaderboardPage() {
               </div>
 
               {/* Mobile Stats */}
-              <div className="md:hidden grid grid-cols-3 gap-4 mt-3 pt-3 border-t">
+              <div className="md:hidden grid grid-cols-2 gap-4 mt-3 pt-3 border-t">
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Market Cap</p>
                   <p className="text-sm font-semibold">{formatCurrency(entry.totalMarketCap)}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Volume</p>
-                  <p className="text-sm font-semibold">{formatCurrency(entry.totalVolume)}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Holders</p>
@@ -244,21 +236,18 @@ export default function LeaderboardPage() {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Streamlined Header */}
       <section className="border-b bg-gradient-to-b from-primary/5 to-transparent">
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-3xl mx-auto text-center space-y-4">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-3xl mx-auto text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <Trophy className="h-8 w-8 text-yellow-500" />
-              <Badge variant="outline" className="text-sm">
-                Top Creator Rankings
-              </Badge>
+              <Trophy className="h-6 w-6 text-yellow-500" />
+              <h1 className="text-2xl md:text-3xl font-bold">
+                Creator Leaderboard
+              </h1>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold">
-              Web3 Creator Leaderboard
-            </h1>
-            <p className="text-xl text-muted-foreground">
-              Discover the top performing creators on Zora and Pump.fun
+            <p className="text-sm text-muted-foreground">
+              Top performing creators on Zora and Pump.fun by market cap
             </p>
           </div>
         </div>

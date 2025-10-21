@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useParams, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,52 +9,12 @@ import { Zap, ExternalLink, ArrowLeft, TrendingUp, Users, Coins, DollarSign } fr
 import { ZoraStatsDashboard } from "@/components/crypto/zora-stats-dashboard";
 import { PumpFunStatsDashboard } from "@/components/crypto/pumpfun-stats-dashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Metadata } from "next";
 
-interface CreatorProfilePageProps {
-  params: {
-    address: string;
-  };
-  searchParams: {
-    platform?: "zora" | "pumpfun";
-  };
-}
-
-export async function generateMetadata({ params, searchParams }: CreatorProfilePageProps): Promise<Metadata> {
-  const { address } = params;
-  const platform = searchParams.platform || "zora";
-  const platformName = platform === "zora" ? "Zora (Base)" : "Pump.fun (Solana)";
-  const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
-
-  return {
-    title: `${shortAddress} - ${platformName} Creator Stats | Bagger`,
-    description: `View comprehensive analytics for ${shortAddress} on ${platformName}. Track market cap, volume, holders, and performance metrics.`,
-    openGraph: {
-      title: `${shortAddress} - ${platformName} Creator`,
-      description: `View analytics for this creator on ${platformName}. Market cap, volume, holders & more.`,
-      type: "website",
-      siteName: "Bagger",
-      images: [
-        {
-          url: "/opengraph-image",
-          width: 1200,
-          height: 630,
-          alt: "Bagger - Web3 Creator Analytics",
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${shortAddress} - ${platformName} Creator`,
-      description: `View analytics for this creator on ${platformName}`,
-      images: ["/opengraph-image"],
-    },
-  };
-}
-
-export default function CreatorProfilePage({ params, searchParams }: CreatorProfilePageProps) {
-  const { address } = params;
-  const platform = searchParams.platform || "zora";
+export default function CreatorProfilePage() {
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const address = params.address as string;
+  const platform = (searchParams.get("platform") as "zora" | "pumpfun") || "zora";
 
   // Format address for display (show first 6 and last 4 chars)
   const formatAddress = (addr: string) => {

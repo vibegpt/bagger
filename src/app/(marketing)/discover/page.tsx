@@ -17,10 +17,21 @@ export default function DiscoverPage() {
     e.preventDefault();
     if (searchQuery.trim()) {
       const query = searchQuery.trim();
+
+      // Auto-detect platform based on address format
+      // Ethereum/Base addresses start with 0x and are 42 chars
+      // Solana addresses are base58 and typically 32-44 chars without 0x
+      let detectedPlatform = platform;
+      if (query.startsWith("0x") && query.length === 42) {
+        detectedPlatform = "zora";
+      } else if (!query.startsWith("0x") && query.length >= 32 && query.length <= 44) {
+        detectedPlatform = "pumpfun";
+      }
+
       if (searchType === "token") {
-        window.location.href = `/token/${query}?platform=${platform}`;
+        window.location.href = `/token/${query}?platform=${detectedPlatform}`;
       } else {
-        window.location.href = `/creator/${query}?platform=${platform}`;
+        window.location.href = `/creator/${query}?platform=${detectedPlatform}`;
       }
     }
   };
@@ -61,6 +72,9 @@ export default function DiscoverPage() {
             <Link href="/">
               <Button variant="ghost">Home</Button>
             </Link>
+            <Link href="/leaderboard">
+              <Button variant="ghost">Leaderboard</Button>
+            </Link>
             <Link href="/sign-up">
               <Button className="glow-primary">Get Started</Button>
             </Link>
@@ -68,18 +82,15 @@ export default function DiscoverPage() {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Streamlined Header */}
       <section className="border-b bg-gradient-to-b from-primary/5 to-transparent">
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-3xl mx-auto text-center space-y-4">
-            <Badge variant="outline" className="mb-2">
-              Public Creator Discovery
-            </Badge>
-            <h1 className="text-4xl md:text-5xl font-bold">
-              Discover Web3 Creator Stats
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">
+              Search Creator or Token
             </h1>
-            <p className="text-xl text-muted-foreground">
-              Search any creator's wallet address to view their token performance on Zora and Pump.fun
+            <p className="text-sm text-muted-foreground">
+              Free public analytics for any wallet or token on Zora and Pump.fun
             </p>
           </div>
         </div>
@@ -251,21 +262,21 @@ export default function DiscoverPage() {
         <Card className="border-primary/20 bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">
-              Are you a Web3 Creator?
+              Track YOUR Creator Tokens
             </CardTitle>
             <CardDescription>
-              Get advanced analytics, predictions, and insights for your tokens
+              Get LTV predictions, churn alerts, revenue tracking, and advanced insights across Pump.fun and Zora
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center pb-6">
             <Link href="/sign-up">
               <Button size="lg" className="glow-primary">
-                Claim Your Profile
+                Start Tracking Free
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
             <p className="mt-3 text-xs text-muted-foreground">
-              Free tier • Advanced analytics available
+              No credit card required • Free beta access • Advanced features available
             </p>
           </CardContent>
         </Card>

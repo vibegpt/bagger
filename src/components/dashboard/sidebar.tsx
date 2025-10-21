@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
-import { LayoutDashboard, Package, Settings, BarChart3, Coins, Zap, Video, TrendingUp } from "lucide-react";
+import { LayoutDashboard, Package, Settings, BarChart3, Coins, Zap, Video, TrendingUp, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -11,6 +11,7 @@ const navigation = [
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "Streams", href: "/streams", icon: Video },
   { name: "Engagement", href: "/engagement", icon: TrendingUp },
+  { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
