@@ -15,36 +15,37 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10");
 
     // For Zora: Query Uniswap V4 pools to discover top creator coins
-    // For Pump.fun: Top tokens by market cap (as of October 2025)
-    // NOTE: Pump.fun API is blocked by Cloudflare, using hardcoded data
-    // TODO: Find alternative data source or implement proxy for Pump.fun API
-    const TOP_PUMPFUN_TOKENS = [
+    // For Pump.fun: Rising/Popular creator tokens (recent activity focus)
+    // NOTE: Pump.fun API is blocked by Cloudflare, using curated rising creators
+    // Prioritizing creator-specific tokens over generic meme coins
+    // Sorted by recent activity/volume rather than just market cap
+    const RISING_PUMPFUN_CREATORS = [
+      {
+        mintAddress: "CPLTbYbtDMKZtHBaPqdDmHjxNwESCEB14gm6VuoDpump",
+        name: "DTV",
+        symbol: "DTV",
+        marketCap: 5200000, // ~$5.2M (graduated to Raydium)
+        rank: 1
+      },
+      {
+        mintAddress: "Df6yfrKC8kZE3KNkrHERKzAetSxbrWeniQfyJY4Jpump",
+        name: "Just a chill guy",
+        symbol: "CHILLGUY",
+        marketCap: 42700000, // ~$43M
+        rank: 2
+      },
       {
         mintAddress: "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump",
         name: "Fartcoin",
         symbol: "FARTCOIN",
-        marketCap: 366000000, // $366M
-        rank: 1
+        marketCap: 366000000, // $366M (included for diversity)
+        rank: 3
       },
       {
         mintAddress: "2qEHjDLDLbuBgRYvsxhc5D6uDWAivNFZGan56P1tpump",
         name: "Peanut the Squirrel",
         symbol: "PNUT",
         marketCap: 133500000, // $133.5M
-        rank: 2
-      },
-      {
-        mintAddress: "ED5nyyWEzpPPiWimP8vYm7sD7TD3LAt3Q3gRTWHzPJBY",
-        name: "Moo Deng",
-        symbol: "MOODENG",
-        marketCap: 108000000, // $108M
-        rank: 3
-      },
-      {
-        mintAddress: "Df6yfrKC8kZE3KNkrHERKzAetSxbrWeniQfyJY4Jpump",
-        name: "Just a chill guy",
-        symbol: "CHILLGUY",
-        marketCap: 42700000, // ~$43M (estimated)
         rank: 4
       },
     ];
@@ -159,10 +160,10 @@ export async function GET(request: NextRequest) {
         data: ranked,
       });
     } else if (platform === "pumpfun") {
-      // Fetch live data for top Pump.fun tokens
-      const tokensToFetch = TOP_PUMPFUN_TOKENS.slice(0, limit);
+      // Fetch live data for rising/popular Pump.fun creator tokens
+      const tokensToFetch = RISING_PUMPFUN_CREATORS.slice(0, limit);
 
-      console.log(`[Leaderboard] Fetching live data for ${tokensToFetch.length} Pump.fun tokens...`);
+      console.log(`[Leaderboard] Fetching live data for ${tokensToFetch.length} rising Pump.fun creator tokens...`);
 
       const statsPromises = tokensToFetch.map(async (tokenInfo) => {
         try {
