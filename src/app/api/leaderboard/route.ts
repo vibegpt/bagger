@@ -28,25 +28,32 @@ export async function GET(request: NextRequest) {
         rank: 1
       },
       {
+        mintAddress: "2GXmB95pGD3pHV4mzNq7YsmyiEmVYWQLptbwYqgdpump",
+        name: "Winternomics TV",
+        symbol: "WNTV",
+        marketCap: 2000000, // Will fetch live data
+        rank: 2
+      },
+      {
+        mintAddress: "WOLF_PLACEHOLDER", // TODO: Need actual mint address
+        name: "Wolf",
+        symbol: "WOLF",
+        marketCap: 1500000, // Will fetch live data
+        rank: 3
+      },
+      {
+        mintAddress: "BIRDIE_PLACEHOLDER", // TODO: Need actual mint address
+        name: "Birdie",
+        symbol: "BIRDIE",
+        marketCap: 1000000, // Will fetch live data
+        rank: 4
+      },
+      {
         mintAddress: "Df6yfrKC8kZE3KNkrHERKzAetSxbrWeniQfyJY4Jpump",
         name: "Just a chill guy",
         symbol: "CHILLGUY",
         marketCap: 42700000, // ~$43M
-        rank: 2
-      },
-      {
-        mintAddress: "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump",
-        name: "Fartcoin",
-        symbol: "FARTCOIN",
-        marketCap: 366000000, // $366M (included for diversity)
-        rank: 3
-      },
-      {
-        mintAddress: "2qEHjDLDLbuBgRYvsxhc5D6uDWAivNFZGan56P1tpump",
-        name: "Peanut the Squirrel",
-        symbol: "PNUT",
-        marketCap: 133500000, // $133.5M
-        rank: 4
+        rank: 5
       },
     ];
 
