@@ -5,8 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrendingUp, TrendingDown, Flame, Zap, Activity, Users, DollarSign, ArrowRight, ExternalLink, RefreshCw } from "lucide-react";
+import { TrendingUp, TrendingDown, Flame, Zap, Activity, Users, DollarSign, ArrowRight, ExternalLink, RefreshCw, Twitter } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SocialMetricsCard } from "@/components/social-metrics-card";
+import { TokenDetailDialog } from "./token-detail-dialog";
 
 interface TrendingToken {
   mint: string;
@@ -27,6 +29,8 @@ export function TrendingTokens() {
   const [solanaTrending, setSolanaTrending] = useState<TrendingToken[]>([]);
   const [loading, setLoading] = useState({ base: true, solana: true });
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [selectedToken, setSelectedToken] = useState<TrendingToken | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // Format currency
   const formatCurrency = (value: number) => {
@@ -179,7 +183,13 @@ export function TrendingTokens() {
       : `https://solscan.io/token/${token.mint}`;
 
     return (
-      <Card className={`hover:shadow-lg transition-all cursor-pointer border-${chainColor}-500/20 hover:border-${chainColor}-500/40`}>
+      <Card
+        className={`hover:shadow-lg transition-all cursor-pointer border-${chainColor}-500/20 hover:border-${chainColor}-500/40`}
+        onClick={() => {
+          setSelectedToken(token);
+          setDialogOpen(true);
+        }}
+      >
         <CardHeader>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
@@ -246,7 +256,10 @@ export function TrendingTokens() {
             variant="outline"
             size="sm"
             className="w-full mt-2"
-            onClick={() => window.open(explorerUrl, '_blank')}
+            onClick={(e) => {
+              e.stopPropagation();
+              window.open(explorerUrl, '_blank');
+            }}
           >
             View on Explorer
             <ExternalLink className="ml-2 h-3 w-3" />
@@ -434,6 +447,15 @@ export function TrendingTokens() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Token Detail Dialog */}
+      {selectedToken && (
+        <TokenDetailDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          token={selectedToken}
+        />
+      )}
     </div>
   );
 }

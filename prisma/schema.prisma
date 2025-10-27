@@ -567,3 +567,55 @@ model CreatorRegistry {
 
   @@index([verified])
 }
+
+// Social Metrics from CoinGecko (for creator coins)
+model SocialMetrics {
+  id                        String    @id @default(cuid())
+  mintAddress               String    @db.VarChar(44) // Link to Pump.fun token
+  coinGeckoId               String?   // CoinGecko coin ID (if found)
+
+  // Social follower counts
+  twitterFollowers          Int?
+  redditSubscribers         Int?
+  telegramUsers             Int?
+  facebookLikes             Int?
+
+  // Community scores
+  communityScore            Decimal?  @db.Decimal(5, 2) // 0-100
+  sentimentUpPercentage     Decimal?  @db.Decimal(5, 2) // 0-100
+  sentimentDownPercentage   Decimal?  @db.Decimal(5, 2) // 0-100
+
+  // Growth metrics (calculated from snapshots)
+  twitterGrowth7d           Int?      // Follower change last 7 days
+  redditGrowth7d            Int?      // Subscriber change last 7 days
+  communityGrowthRate       Decimal?  @db.Decimal(10, 4) // % change
+
+  // Metadata
+  lastSyncedAt              DateTime  @default(now())
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  @@unique([mintAddress])
+  @@index([coinGeckoId])
+  @@index([lastSyncedAt])
+}
+
+// Social Metrics Snapshots (daily tracking for growth analysis)
+model SocialMetricsSnapshot {
+  id                    Int       @id @default(autoincrement())
+  mintAddress           String    @db.VarChar(44)
+  timestamp             DateTime
+
+  // Snapshot of all social metrics
+  twitterFollowers      Int?
+  redditSubscribers     Int?
+  telegramUsers         Int?
+  facebookLikes         Int?
+  communityScore        Decimal?  @db.Decimal(5, 2)
+  sentimentUpPercentage Decimal?  @db.Decimal(5, 2)
+
+  createdAt             DateTime  @default(now())
+
+  @@index([mintAddress, timestamp])
+  @@index([timestamp])
+}
