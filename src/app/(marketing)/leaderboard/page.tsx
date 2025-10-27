@@ -13,10 +13,19 @@ interface LeaderboardEntry {
   rank: number;
   address: string;
   name?: string;
+  symbol?: string;
   imageUrl?: string;
   totalMarketCap: number;
   totalVolume: number;
   totalHolders: number;
+  liquidity?: number;
+  volume24h?: number;
+  uniqueTraders24h?: number;
+  tokenAgeHours?: number;
+  priceChange24h?: number;
+  velocityScore?: number;
+  creatorVerified?: boolean;
+  graduatedToRaydium?: boolean;
   successRate?: number;
   tokensCreated?: number;
   platform: "zora" | "pumpfun";
@@ -25,14 +34,19 @@ interface LeaderboardEntry {
 export default function LeaderboardPage() {
   const [zoraLeaderboard, setZoraLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [pumpfunLeaderboard, setPumpfunLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [establishedLeaderboard, setEstablishedLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [trendingLeaderboard, setTrendingLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pumpfunSubTab, setPumpfunSubTab] = useState<"curated" | "established" | "trending">("curated");
 
   useEffect(() => {
     async function fetchLeaderboards() {
       try {
-        const [zoraRes, pumpfunRes] = await Promise.all([
+        const [zoraRes, pumpfunRes, establishedRes, trendingRes] = await Promise.all([
           fetch("/api/leaderboard?platform=zora&limit=10"),
           fetch("/api/leaderboard?platform=pumpfun&limit=10"),
+          fetch("/api/leaderboard/established?limit=10"),
+          fetch("/api/leaderboard/trending?limit=20"),
         ]);
 
         if (zoraRes.ok) {
@@ -46,6 +60,20 @@ export default function LeaderboardPage() {
           const pumpfunData = await pumpfunRes.json();
           if (pumpfunData.success) {
             setPumpfunLeaderboard(pumpfunData.data);
+          }
+        }
+
+        if (establishedRes.ok) {
+          const establishedData = await establishedRes.json();
+          if (establishedData.success) {
+            setEstablishedLeaderboard(establishedData.data);
+          }
+        }
+
+        if (trendingRes.ok) {
+          const trendingData = await trendingRes.json();
+          if (trendingData.success) {
+            setTrendingLeaderboard(trendingData.data);
           }
         }
       } catch (error) {
@@ -312,19 +340,100 @@ export default function LeaderboardPage() {
 
           {/* Pump.fun Leaderboard */}
           <TabsContent value="pumpfun" className="space-y-6">
-            <Card className="border-accent/20 bg-gradient-to-br from-accent/5 to-transparent">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Rising Pump.fun Creators
-                </CardTitle>
-                <CardDescription>
-                  Popular creator tokens with recent activity and growth
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            {/* Sub-tabs for Pump.fun */}
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                <Button
+                  variant={pumpfunSubTab === "curated" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setPumpfunSubTab("curated")}
+                  className="whitespace-nowrap"
+                >
+                  Rising Creators
+                </Button>
+                <Button
+                  variant={pumpfunSubTab === "established" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setPumpfunSubTab("established")}
+                  className="whitespace-nowrap"
+                >
+                  <Trophy className="h-3 w-3 mr-1" />
+                  Established
+                </Button>
+                <Button
+                  variant={pumpfunSubTab === "trending" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setPumpfunSubTab("trending")}
+                  className="whitespace-nowrap"
+                >
+                  <TrendingUp className="h-3 w-3 mr-1" />
+                  Trending (24h)
+                </Button>
+              </div>
 
-            <LeaderboardTable entries={pumpfunLeaderboard} platform="pumpfun" />
+              {/* Curated Rising Creators */}
+              {pumpfunSubTab === "curated" && (
+                <>
+                  <Card className="border-accent/20 bg-gradient-to-br from-accent/5 to-transparent">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Users className="h-5 w-5" />
+                        Rising Pump.fun Creators
+                      </CardTitle>
+                      <CardDescription>
+                        Popular creator tokens with recent activity and growth
+                      </CardDescription>
+                    </CardHeader>
+                  </Card>
+
+                  <LeaderboardTable entries={pumpfunLeaderboard} platform="pumpfun" />
+                </>
+              )}
+
+              {/* Established Creators */}
+              {pumpfunSubTab === "established" && (
+                <>
+                  <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Trophy className="h-5 w-5" />
+                        Established Creators
+                      </CardTitle>
+                      <CardDescription>
+                        Proven tokens with strong fundamentals (≥$100k mcap, ≥$25k liquidity, ≥3 days old, ≥200 holders)
+                      </CardDescription>
+                    </CardHeader>
+                  </Card>
+
+                  <LeaderboardTable entries={establishedLeaderboard} platform="pumpfun" />
+                </>
+              )}
+
+              {/* Trending Launches */}
+              {pumpfunSubTab === "trending" && (
+                <>
+                  <Card className="border-orange-500/20 bg-gradient-to-br from-orange-500/5 to-transparent">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5 text-orange-500" />
+                        Trending Launches (24h)
+                      </CardTitle>
+                      <CardDescription>
+                        New tokens with high growth velocity (1-24h old, ranked by growth rate)
+                      </CardDescription>
+                    </CardHeader>
+                  </Card>
+
+                  {trendingLeaderboard.length > 0 && (
+                    <Badge variant="outline" className="w-fit bg-orange-500/10 text-orange-500 border-orange-500/20">
+                      ⚠️ Higher Risk - New Launches
+                    </Badge>
+                  )}
+
+                  <LeaderboardTable entries={trendingLeaderboard} platform="pumpfun" />
+                </>
+              )}
+            </div>
 
             {/* Coming Soon */}
             <Card className="border-dashed">

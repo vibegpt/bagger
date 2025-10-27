@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/update-tokens",
+      "schedule": "*/10 * * * *"
+    }
+  ]
+}
