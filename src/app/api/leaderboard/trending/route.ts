@@ -21,9 +21,13 @@ export async function GET(request: NextRequest) {
 
     const tokens = await tokenFilteringService.getTrendingTokens(limit);
 
-    // Transform to leaderboard format with velocity score
+    // Determine if we're showing new launches or volume trending
+    const hasNewLaunches = tokens.length > 0 && tokens[0].tokenAgeHours <= 24;
+    const mode = hasNewLaunches ? 'new_launches' : 'trending_by_volume';
+
+    // Transform to leaderboard format
     const leaderboardData = tokens.map((token, index) => {
-      // Calculate velocity score for display
+      // Calculate velocity score for display (only relevant for new launches)
       const ageInHours = Math.max(token.tokenAgeHours, 1);
       const mcapVelocity = Number(token.marketCapUsd) / ageInHours;
       const holderVelocity = token.holderCount / ageInHours;
@@ -42,29 +46,31 @@ export async function GET(request: NextRequest) {
         uniqueTraders24h: token.uniqueTraders24h,
         tokenAgeHours: token.tokenAgeHours,
         priceChange24h: token.priceChange24h ? Number(token.priceChange24h) : null,
-        velocityScore: Math.floor(velocityScore),
+        velocityScore: hasNewLaunches ? Math.floor(velocityScore) : undefined,
         creatorVerified: token.creatorVerified,
         graduatedToRaydium: token.graduatedToRaydium,
         platform: 'pumpfun' as const,
       };
     });
 
-    console.log(`[API] Returning ${leaderboardData.length} trending tokens`);
+    console.log(`[API] Returning ${leaderboardData.length} trending tokens (mode: ${mode})`);
 
     return NextResponse.json({
       success: true,
       data: leaderboardData,
       meta: {
         filterType: 'trending',
+        mode, // 'new_launches' or 'trending_by_volume'
         count: leaderboardData.length,
         filters: {
           minMarketCap: 10000,
           minLiquidity: 5000,
           minVolume24h: 5000,
-          minHolders: 50,
-          minTokenAgeHours: 1,
-          maxTokenAgeHours: 24,
+          minHolders: hasNewLaunches ? 50 : undefined,
+          minTokenAgeHours: hasNewLaunches ? 1 : undefined,
+          maxTokenAgeHours: hasNewLaunches ? 24 : undefined,
         },
+        sortBy: hasNewLaunches ? 'velocity' : 'volume24h',
       },
     });
   } catch (error) {

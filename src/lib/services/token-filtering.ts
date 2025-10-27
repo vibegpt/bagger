@@ -76,11 +76,14 @@ export class TokenFilteringService {
   /**
    * Get tokens that pass Trending Launches filters
    * Ranked by velocity (growth rate)
+   *
+   * Falls back to "Trending by Volume" if no new tokens (1-24h) exist
    */
   async getTrendingTokens(limit: number = 20): Promise<TokenMetrics[]> {
     console.log('[Filtering] Fetching trending tokens...');
 
-    const tokens = await prisma.tokenMetrics.findMany({
+    // First, try to get new tokens (1-24h old)
+    const newTokens = await prisma.tokenMetrics.findMany({
       where: {
         marketCapUsd: { gte: TRENDING_FILTERS.minMarketCap },
         liquidityUsd: { gte: TRENDING_FILTERS.minLiquidity },
@@ -97,11 +100,32 @@ export class TokenFilteringService {
       take: limit * 2, // Fetch extra for velocity ranking
     });
 
-    // Calculate velocity scores and re-rank
-    const rankedTokens = this.rankByVelocity(tokens);
+    // If we have new tokens, rank by velocity
+    if (newTokens.length > 0) {
+      const rankedTokens = this.rankByVelocity(newTokens);
+      console.log(`[Filtering] Found ${rankedTokens.length} new launch tokens (showing top ${Math.min(limit, rankedTokens.length)})`);
+      return rankedTokens.slice(0, limit);
+    }
 
-    console.log(`[Filtering] Found ${rankedTokens.length} trending tokens (showing top ${Math.min(limit, rankedTokens.length)})`);
-    return rankedTokens.slice(0, limit);
+    // Fallback: Get tokens trending by volume (no age restriction)
+    console.log('[Filtering] No new launches found, falling back to trending by volume...');
+    const volumeTrending = await prisma.tokenMetrics.findMany({
+      where: {
+        marketCapUsd: { gte: TRENDING_FILTERS.minMarketCap },
+        liquidityUsd: { gte: TRENDING_FILTERS.minLiquidity },
+        volume24hUsd: { gte: TRENDING_FILTERS.minVolume24h },
+        // Anti-rug filters
+        priceCrashDetected: false,
+        liquidityDrainDetected: false,
+      },
+      orderBy: {
+        volume24hUsd: 'desc', // Ranked by 24h volume
+      },
+      take: limit,
+    });
+
+    console.log(`[Filtering] Found ${volumeTrending.length} volume-trending tokens`);
+    return volumeTrending;
   }
 
   /**
