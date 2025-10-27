@@ -409,26 +409,20 @@ export default function LeaderboardPage() {
                 </>
               )}
 
-              {/* Trending Launches */}
+              {/* Trending by Volume */}
               {pumpfunSubTab === "trending" && (
                 <>
                   <Card className="border-orange-500/20 bg-gradient-to-br from-orange-500/5 to-transparent">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <TrendingUp className="h-5 w-5 text-orange-500" />
-                        Trending Launches (24h)
+                        Trending by Volume
                       </CardTitle>
                       <CardDescription>
-                        New tokens with high growth velocity (1-24h old, ranked by growth rate)
+                        Most actively traded tokens in the last 24 hours (≥$10k mcap, ≥$5k liquidity & volume)
                       </CardDescription>
                     </CardHeader>
                   </Card>
-
-                  {trendingLeaderboard.length > 0 && (
-                    <Badge variant="outline" className="w-fit bg-orange-500/10 text-orange-500 border-orange-500/20">
-                      ⚠️ Higher Risk - New Launches
-                    </Badge>
-                  )}
 
                   <LeaderboardTable entries={trendingLeaderboard} platform="pumpfun" />
                 </>
