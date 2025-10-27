@@ -75,6 +75,9 @@ export default function DiscoverPage() {
             <Link href="/leaderboard">
               <Button variant="ghost">Leaderboard</Button>
             </Link>
+            <Link href="/insights">
+              <Button variant="ghost">Insights</Button>
+            </Link>
             <Link href="/sign-up">
               <Button className="glow-primary">Get Started</Button>
             </Link>

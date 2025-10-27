@@ -91,6 +91,9 @@ export default function LandingPage() {
             <Link href="/leaderboard">
               <Button variant="ghost">Leaderboard</Button>
             </Link>
+            <Link href="/insights">
+              <Button variant="ghost">Insights</Button>
+            </Link>
             <Link href="/sign-in">
               <Button variant="ghost">Sign In</Button>
             </Link>

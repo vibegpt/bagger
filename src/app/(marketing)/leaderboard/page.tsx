@@ -229,6 +229,9 @@ export default function LeaderboardPage() {
             <Link href="/discover">
               <Button variant="ghost">Discover</Button>
             </Link>
+            <Link href="/insights">
+              <Button variant="ghost">Insights</Button>
+            </Link>
             <Link href="/sign-up">
               <Button className="glow-primary">Get Started</Button>
             </Link>
