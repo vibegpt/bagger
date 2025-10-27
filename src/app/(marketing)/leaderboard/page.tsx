@@ -33,18 +33,18 @@ interface LeaderboardEntry {
 
 export default function LeaderboardPage() {
   const [zoraLeaderboard, setZoraLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [pumpfunLeaderboard, setPumpfunLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [creatorCoinsLeaderboard, setCreatorCoinsLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [establishedLeaderboard, setEstablishedLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [trendingLeaderboard, setTrendingLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [pumpfunSubTab, setPumpfunSubTab] = useState<"curated" | "established" | "trending">("curated");
+  const [pumpfunSubTab, setPumpfunSubTab] = useState<"creator-coins" | "established" | "trending">("creator-coins");
 
   useEffect(() => {
     async function fetchLeaderboards() {
       try {
-        const [zoraRes, pumpfunRes, establishedRes, trendingRes] = await Promise.all([
+        const [zoraRes, creatorCoinsRes, establishedRes, trendingRes] = await Promise.all([
           fetch("/api/leaderboard?platform=zora&limit=10"),
-          fetch("/api/leaderboard?platform=pumpfun&limit=10"),
+          fetch("/api/leaderboard/creator-coins?limit=10"),
           fetch("/api/leaderboard/established?limit=10"),
           fetch("/api/leaderboard/trending?limit=20"),
         ]);
@@ -56,10 +56,10 @@ export default function LeaderboardPage() {
           }
         }
 
-        if (pumpfunRes.ok) {
-          const pumpfunData = await pumpfunRes.json();
-          if (pumpfunData.success) {
-            setPumpfunLeaderboard(pumpfunData.data);
+        if (creatorCoinsRes.ok) {
+          const creatorCoinsData = await creatorCoinsRes.json();
+          if (creatorCoinsData.success) {
+            setCreatorCoinsLeaderboard(creatorCoinsData.data);
           }
         }
 
@@ -344,12 +344,13 @@ export default function LeaderboardPage() {
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2 overflow-x-auto pb-2">
                 <Button
-                  variant={pumpfunSubTab === "curated" ? "default" : "outline"}
+                  variant={pumpfunSubTab === "creator-coins" ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setPumpfunSubTab("curated")}
+                  onClick={() => setPumpfunSubTab("creator-coins")}
                   className="whitespace-nowrap"
                 >
-                  Rising Creators
+                  <Users className="h-3 w-3 mr-1" />
+                  Creator Coins
                 </Button>
                 <Button
                   variant={pumpfunSubTab === "established" ? "default" : "outline"}
@@ -371,22 +372,22 @@ export default function LeaderboardPage() {
                 </Button>
               </div>
 
-              {/* Curated Rising Creators */}
-              {pumpfunSubTab === "curated" && (
+              {/* Creator Coins */}
+              {pumpfunSubTab === "creator-coins" && (
                 <>
                   <Card className="border-accent/20 bg-gradient-to-br from-accent/5 to-transparent">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Users className="h-5 w-5" />
-                        Rising Pump.fun Creators
+                        Creator Coins
                       </CardTitle>
                       <CardDescription>
-                        Popular creator tokens with recent activity and growth
+                        Curated tokens backed by verified creators, brands, and known personalities
                       </CardDescription>
                     </CardHeader>
                   </Card>
 
-                  <LeaderboardTable entries={pumpfunLeaderboard} platform="pumpfun" />
+                  <LeaderboardTable entries={creatorCoinsLeaderboard} platform="pumpfun" />
                 </>
               )}
 
@@ -445,7 +446,7 @@ export default function LeaderboardPage() {
       </section>
 
       {/* Stats Banner */}
-      {!loading && (zoraLeaderboard.length > 0 || pumpfunLeaderboard.length > 0) && (
+      {!loading && (zoraLeaderboard.length > 0 || creatorCoinsLeaderboard.length > 0) && (
         <section className="container mx-auto px-4 py-12">
           <div className="grid gap-6 md:grid-cols-3">
             <Card className="text-center border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
@@ -459,7 +460,7 @@ export default function LeaderboardPage() {
             <Card className="text-center border-accent/20 bg-gradient-to-br from-accent/5 to-transparent">
               <CardHeader>
                 <CardTitle className="text-3xl font-bold gradient-text">
-                  {formatCurrency(pumpfunLeaderboard.reduce((sum, e) => sum + e.totalMarketCap, 0))}
+                  {formatCurrency(creatorCoinsLeaderboard.reduce((sum, e) => sum + e.totalMarketCap, 0))}
                 </CardTitle>
                 <CardDescription>Combined Market Cap (Pump.fun)</CardDescription>
               </CardHeader>
