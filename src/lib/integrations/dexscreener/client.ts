@@ -178,7 +178,7 @@ export class DexScreenerClient {
         mintAddress,
         name: primaryPair.baseToken.name,
         symbol: primaryPair.baseToken.symbol,
-        imageUrl: undefined, // DexScreener doesn't provide images in API
+        imageUrl: primaryPair.info?.imageUrl || undefined, // Extract image from DexScreener API
         marketCap: primaryPair.fdv || 0,
         liquidity: primaryPair.liquidity?.usd || 0,
         volume24h: primaryPair.volume.h24 || 0,
