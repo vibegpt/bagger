@@ -35,14 +35,14 @@ export async function GET(request: NextRequest) {
         rank: 2
       },
       {
-        mintAddress: "WOLF_PLACEHOLDER", // TODO: Need actual mint address
+        mintAddress: "7ctK21VZcJX1t1jiWLyWkSJk2Wm7xHYdsnWegzR6pump",
         name: "Wolf",
         symbol: "WOLF",
         marketCap: 1500000, // Will fetch live data
         rank: 3
       },
       {
-        mintAddress: "BIRDIE_PLACEHOLDER", // TODO: Need actual mint address
+        mintAddress: "BWExg398H58wceWfmMDZQdeVhFGe4wQFrbV72VoZpump",
         name: "Birdie",
         symbol: "BIRDIE",
         marketCap: 1000000, // Will fetch live data
