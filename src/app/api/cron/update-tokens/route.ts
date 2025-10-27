@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { tokenIngestionService } from '@/lib/services/token-ingestion';
+import { socialMetricsService } from '@/lib/services/social-metrics';
 
 /**
  * Cron job endpoint to update token metrics
@@ -41,8 +42,19 @@ export async function GET(request: NextRequest) {
     // Update existing tokens (limit to 50 per run to respect rate limits)
     const updateResults = await tokenIngestionService.updateAllTokens(50);
 
-    // Clean up old snapshots (keep only last 7 days)
+    // Clean up old token snapshots (keep only last 7 days)
     const cleanupCount = await tokenIngestionService.cleanupOldSnapshots();
+
+    // Sync social metrics (runs less frequently - every 10th run = ~100 minutes)
+    let socialSyncResults = { synced: 0, cleaned: 0 };
+    const runNumber = Math.floor(Date.now() / (10 * 60 * 1000)) % 10;
+    if (runNumber === 0) {
+      console.log('[Cron] Running social metrics sync...');
+      const syncedCount = await socialMetricsService.syncAllTokens();
+      const cleanedSocialCount = await socialMetricsService.cleanupOldSnapshots();
+      socialSyncResults = { synced: syncedCount, cleaned: cleanedSocialCount };
+      console.log(`[Cron] Social metrics: synced ${syncedCount}, cleaned ${cleanedSocialCount} snapshots`);
+    }
 
     // Get stats for logging
     const stats = await tokenIngestionService.getStats();
@@ -62,6 +74,7 @@ export async function GET(request: NextRequest) {
         total: updateResults.total,
         cleanedSnapshots: cleanupCount,
       },
+      socialMetrics: socialSyncResults,
       stats: {
         totalTokens: stats.totalTokens,
         tokensUpdatedLast24h: stats.tokensLast24h,
