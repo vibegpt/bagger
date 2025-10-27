@@ -54,6 +54,7 @@ export async function GET(request: NextRequest) {
           minHolders: 200,
           minTokenAgeHours: 72,
         },
+        sortBy: 'marketCap',
       },
     });
   } catch (error) {

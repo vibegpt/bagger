@@ -59,10 +59,9 @@ export class TokenFilteringService {
         liquidityDrainDetected: false,
         washTradingSuspected: false,
       },
-      orderBy: [
-        { creatorVerified: 'desc' }, // Verified creators first
-        { marketCapUsd: 'desc' }, // Then by market cap
-      ],
+      orderBy: {
+        marketCapUsd: 'desc', // Ranked by market cap
+      },
       take: limit,
     });
 
