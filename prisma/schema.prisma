@@ -489,3 +489,81 @@ model WeeklyReport {
   @@index([reportDate])
   @@index([posted])
 }
+
+// ================================================================================
+// TOKEN FILTERING MODELS (for Pump.fun leaderboard filtering)
+// ================================================================================
+
+// Token Metrics (for filtered leaderboards)
+model TokenMetrics {
+  id                      String                @id @default(cuid())
+  mintAddress             String                @unique @db.VarChar(44)
+  name                    String?
+  symbol                  String?
+  imageUrl                String?
+  creatorWallet           String?               @db.VarChar(44)
+  createdAt               DateTime
+
+  // Current metrics
+  marketCapUsd            Decimal               @db.Decimal(15, 2)
+  liquidityUsd            Decimal               @db.Decimal(15, 2)
+  volume24hUsd            Decimal               @db.Decimal(15, 2)
+  volume7dUsd             Decimal?              @db.Decimal(15, 2)
+  holderCount             Int
+  uniqueTraders24h        Int?
+  uniqueTraders7d         Int?
+
+  // Derived metrics
+  tokenAgeHours           Int
+  distinctTradingHours24h Int?
+  priceChange24h          Decimal?              @db.Decimal(10, 4)
+  liquidityChange24h      Decimal?              @db.Decimal(10, 4)
+
+  // Anti-rug flags
+  liquidityDrainDetected  Boolean               @default(false)
+  priceCrashDetected      Boolean               @default(false)
+  washTradingSuspected    Boolean               @default(false)
+
+  // Metadata
+  creatorVerified         Boolean               @default(false)
+  graduatedToRaydium      Boolean               @default(false)
+
+  // Timestamps
+  lastUpdatedAt           DateTime              @updatedAt
+
+  // Relations
+  metricSnapshots         TokenMetricSnapshot[]
+
+  @@index([marketCapUsd])
+  @@index([tokenAgeHours])
+  @@index([creatorWallet])
+  @@index([lastUpdatedAt])
+}
+
+// Token Metric Snapshots (time-series for velocity calculations)
+model TokenMetricSnapshot {
+  id                Int           @id @default(autoincrement())
+  mintAddress       String        @db.VarChar(44)
+  timestamp         DateTime
+  marketCapUsd      Decimal       @db.Decimal(15, 2)
+  liquidityUsd      Decimal       @db.Decimal(15, 2)
+  priceUsd          Decimal       @db.Decimal(15, 8)
+  holderCount       Int
+
+  token             TokenMetrics  @relation(fields: [mintAddress], references: [mintAddress], onDelete: Cascade)
+
+  @@index([mintAddress, timestamp])
+}
+
+// Creator Registry (for verification and creator linkage)
+model CreatorRegistry {
+  id                  String    @id @default(cuid())
+  walletAddress       String    @unique @db.VarChar(44)
+  username            String?
+  verified            Boolean   @default(false)
+  verificationMethod  String?   // twitter, discord, manual
+  socialLinks         Json?     // {twitter, discord, telegram, etc}
+  createdAt           DateTime  @default(now())
+
+  @@index([verified])
+}
