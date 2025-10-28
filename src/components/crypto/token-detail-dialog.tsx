@@ -34,7 +34,15 @@ export function TokenDetailDialog({ open, onOpenChange, token }: TokenDetailDial
     if (val >= 1_000) {
       return `$${(val / 1_000).toFixed(1)}K`;
     }
-    return `$${val.toFixed(2)}`;
+    if (val >= 1) {
+      return `$${val.toFixed(2)}`;
+    }
+    // For small crypto prices, show more decimals
+    if (val > 0) {
+      // Show up to 6 significant figures for small numbers
+      return `$${val.toFixed(6).replace(/\.?0+$/, '')}`;
+    }
+    return `$0.00`;
   };
 
   const formatNumber = (value: number | undefined) => {
