@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Twitter, MessageCircle, Send, ThumbsUp, TrendingUp, TrendingDown } from 'lucide-react';
+import { Twitter, MessageCircle, Send, ThumbsUp, TrendingUp, TrendingDown, Users, Activity } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface SocialMetrics {
@@ -20,6 +20,15 @@ interface SocialMetrics {
   lastSyncedAt: Date;
 }
 
+interface OnChainMetrics {
+  currentHolders: number;
+  holderGrowth24h: number;
+  holderChange24h: number;
+  estimatedTradesPerHour: number;
+  snapshotCount24h: number;
+  volumeTrend24h: number;
+}
+
 interface SocialMetricsCardProps {
   mintAddress: string;
   tokenSymbol?: string;
@@ -27,29 +36,38 @@ interface SocialMetricsCardProps {
 
 export function SocialMetricsCard({ mintAddress, tokenSymbol }: SocialMetricsCardProps) {
   const [metrics, setMetrics] = useState<SocialMetrics | null>(null);
+  const [onChainMetrics, setOnChainMetrics] = useState<OnChainMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [useOnChain, setUseOnChain] = useState(false);
 
   useEffect(() => {
     async function fetchMetrics() {
       try {
         setLoading(true);
-        const response = await fetch(`/api/social-metrics/${mintAddress}`);
 
-        if (!response.ok) {
-          if (response.status === 404) {
-            setError('Not available on CoinGecko');
+        // Try CoinGecko social metrics first
+        const socialResponse = await fetch(`/api/social-metrics/${mintAddress}`);
+
+        if (socialResponse.ok) {
+          const data = await socialResponse.json();
+          setMetrics(data.data.current);
+          setUseOnChain(false);
+        } else {
+          // Fallback to on-chain metrics
+          const onChainResponse = await fetch(`/api/on-chain-metrics/${mintAddress}`);
+
+          if (onChainResponse.ok) {
+            const data = await onChainResponse.json();
+            setOnChainMetrics(data.data);
+            setUseOnChain(true);
           } else {
-            setError('Failed to load social metrics');
+            setError('No metrics available');
           }
-          return;
         }
-
-        const data = await response.json();
-        setMetrics(data.data.current);
       } catch (err) {
-        console.error('Error fetching social metrics:', err);
-        setError('Failed to load social metrics');
+        console.error('Error fetching metrics:', err);
+        setError('Failed to load metrics');
       } finally {
         setLoading(false);
       }
@@ -74,7 +92,7 @@ export function SocialMetricsCard({ mintAddress, tokenSymbol }: SocialMetricsCar
     );
   }
 
-  if (error || !metrics) {
+  if (error || (!metrics && !onChainMetrics)) {
     return (
       <Card className="border-muted">
         <CardHeader>
@@ -82,15 +100,87 @@ export function SocialMetricsCard({ mintAddress, tokenSymbol }: SocialMetricsCar
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            {error || 'No social data available'}
+            {error || 'No metrics available'}
           </p>
           <p className="text-xs text-muted-foreground mt-2">
-            This token is not yet tracked on CoinGecko
+            Token needs more tracking data
           </p>
         </CardContent>
       </Card>
     );
   }
+
+  // Render on-chain metrics if using that data
+  if (useOnChain && onChainMetrics) {
+    const formatGrowth = (growth: number) => {
+      const isPositive = growth >= 0;
+      const Icon = isPositive ? TrendingUp : TrendingDown;
+      const color = isPositive ? 'text-green-600' : 'text-red-600';
+
+      return (
+        <span className={`flex items-center gap-1 text-xs ${color}`}>
+          <Icon className="w-3 h-3" />
+          {isPositive ? '+' : ''}{growth.toFixed(2)}%
+        </span>
+      );
+    };
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>On-Chain Metrics</span>
+            <Badge variant="secondary">24h Data</Badge>
+          </CardTitle>
+          <CardDescription>Community activity from blockchain data</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Holder Growth */}
+          <div className="flex items-center justify-between p-3 border rounded-lg">
+            <div className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-blue-600" />
+              <div>
+                <p className="text-sm font-medium">Holder Growth</p>
+                <p className="text-xs text-muted-foreground">Last 24 hours</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-lg font-bold">{formatGrowth(onChainMetrics.holderGrowth24h)}</p>
+              <p className="text-xs text-muted-foreground">
+                {onChainMetrics.holderChange24h > 0 ? '+' : ''}{onChainMetrics.holderChange24h} holders
+              </p>
+            </div>
+          </div>
+
+          {/* Trade Activity */}
+          <div className="flex items-center justify-between p-3 border rounded-lg">
+            <div className="flex items-center gap-2">
+              <Activity className="w-5 h-5 text-purple-600" />
+              <div>
+                <p className="text-sm font-medium">Trade Activity</p>
+                <p className="text-xs text-muted-foreground">Estimated rate</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-lg font-bold">{onChainMetrics.estimatedTradesPerHour}</p>
+              <p className="text-xs text-muted-foreground">trades/hour</p>
+            </div>
+          </div>
+
+          {/* Current Holders */}
+          <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
+            <div>
+              <p className="text-xs text-muted-foreground">Total Holders</p>
+              <p className="text-lg font-bold">{onChainMetrics.currentHolders.toLocaleString()}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Original CoinGecko metrics render
+  if (!metrics) return null;
 
   const formatNumber = (num: number | null) => {
     if (num === null) return 'N/A';
