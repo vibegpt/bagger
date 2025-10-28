@@ -177,20 +177,59 @@ export async function GET(request: NextRequest) {
           const tokenData = await pumpFunClient.getToken(tokenInfo.mintAddress);
 
           if (tokenData) {
-            // Successfully fetched live data
+            // Successfully fetched live data from Pump.fun
             return {
               rank: tokenInfo.rank,
               address: tokenInfo.mintAddress,
               name: tokenData.name,
-              symbol: tokenData.symbol || tokenInfo.symbol, // Use API symbol or fallback to hardcoded
+              symbol: tokenData.symbol || tokenInfo.symbol,
               imageUrl: tokenData.imageUri,
               totalMarketCap: tokenData.marketCap,
               totalVolume: tokenData.volumeAllTime,
+              volume24h: tokenData.volume24h,
+              price: tokenData.price,
               totalHolders: tokenData.holderCount,
               platform: "pumpfun" as const,
             };
           } else {
-            // API failed, fallback to hardcoded data with estimated holders
+            // Pump.fun API failed, try DexScreener as fallback
+            console.log(`[Leaderboard] Trying DexScreener for ${tokenInfo.name}...`);
+            const dexData = await pumpFunClient.getTokenMarketData(tokenInfo.mintAddress);
+
+            if (dexData) {
+              console.log(`[Leaderboard] Got DexScreener data for ${tokenInfo.name}`);
+
+              // Estimate holders based on market cap
+              let estimatedHolders = 0;
+              if (dexData.marketCap > 100000000) {
+                estimatedHolders = Math.floor(15000 + (dexData.marketCap / 1000000) * 100);
+              } else if (dexData.marketCap > 50000000) {
+                estimatedHolders = Math.floor(8000 + (dexData.marketCap / 1000000) * 80);
+              } else {
+                estimatedHolders = Math.floor(3000 + (dexData.marketCap / 1000000) * 50);
+              }
+
+              return {
+                rank: tokenInfo.rank,
+                address: tokenInfo.mintAddress,
+                name: dexData.name,
+                symbol: dexData.symbol,
+                imageUrl: dexData.imageUri,
+                totalMarketCap: dexData.marketCap,
+                totalVolume: dexData.volume24h * 7, // Estimate weekly volume
+                volume24h: dexData.volume24h,
+                price: dexData.price,
+                totalHolders: estimatedHolders,
+                platform: "pumpfun" as const,
+              };
+            }
+
+            // Both APIs failed, use hardcoded data with calculations
+            console.log(`[Leaderboard] Using fallback data for ${tokenInfo.name}`);
+
+            // Calculate price from market cap (all pump.fun tokens have 1B supply)
+            const calculatedPrice = tokenInfo.marketCap / 1_000_000_000;
+
             let estimatedHolders = 0;
             if (tokenInfo.marketCap > 100000000) {
               estimatedHolders = Math.floor(15000 + (tokenInfo.marketCap / 1000000) * 100);
@@ -200,8 +239,6 @@ export async function GET(request: NextRequest) {
               estimatedHolders = Math.floor(3000 + (tokenInfo.marketCap / 1000000) * 50);
             }
 
-            console.log(`[Leaderboard] Using fallback data for ${tokenInfo.name}`);
-
             return {
               rank: tokenInfo.rank,
               address: tokenInfo.mintAddress,
@@ -210,13 +247,19 @@ export async function GET(request: NextRequest) {
               imageUrl: undefined,
               totalMarketCap: tokenInfo.marketCap,
               totalVolume: 0,
+              volume24h: 0,
+              price: calculatedPrice,
               totalHolders: estimatedHolders,
               platform: "pumpfun" as const,
             };
           }
         } catch (error) {
           console.error(`[Leaderboard] Error fetching ${tokenInfo.name}:`, error);
-          // Return fallback data
+
+          // Calculate price from market cap
+          const calculatedPrice = tokenInfo.marketCap / 1_000_000_000;
+
+          // Return fallback data with calculated price
           return {
             rank: tokenInfo.rank,
             address: tokenInfo.mintAddress,
@@ -225,6 +268,8 @@ export async function GET(request: NextRequest) {
             imageUrl: undefined,
             totalMarketCap: tokenInfo.marketCap,
             totalVolume: 0,
+            volume24h: 0,
+            price: calculatedPrice,
             totalHolders: 0,
             platform: "pumpfun" as const,
           };

@@ -15,9 +15,12 @@ interface LeaderboardEntry {
   rank: number;
   address: string;
   name?: string;
+  symbol?: string;
   imageUrl?: string;
   totalMarketCap: number;
   totalVolume: number;
+  volume24h?: number;
+  price?: number;
   totalHolders: number;
   platform: "zora" | "pumpfun";
 }
@@ -82,8 +85,8 @@ export default function LandingPage() {
       symbol: entry.symbol || entry.name?.toUpperCase().replace(/\s+/g, '') || "TOKEN",
       imageUri: entry.imageUrl || "",
       marketCap: entry.totalMarketCap || 0,
-      price: 0, // Price not available from leaderboard
-      volume24h: entry.totalVolume || 0,
+      price: entry.price || 0,
+      volume24h: entry.volume24h || 0,
       priceChange24h: 0,
       holderCount: entry.totalHolders || 0,
       chain: entry.platform === 'zora' ? 'base' as const : 'solana' as const,
