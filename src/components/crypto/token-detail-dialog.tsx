@@ -26,24 +26,26 @@ interface TokenDetailDialogProps {
 }
 
 export function TokenDetailDialog({ open, onOpenChange, token }: TokenDetailDialogProps) {
-  const formatCurrency = (value: number) => {
-    if (value >= 1_000_000) {
-      return `$${(value / 1_000_000).toFixed(2)}M`;
+  const formatCurrency = (value: number | undefined) => {
+    const val = value ?? 0;
+    if (val >= 1_000_000) {
+      return `$${(val / 1_000_000).toFixed(2)}M`;
     }
-    if (value >= 1_000) {
-      return `$${(value / 1_000).toFixed(1)}K`;
+    if (val >= 1_000) {
+      return `$${(val / 1_000).toFixed(1)}K`;
     }
-    return `$${value.toFixed(2)}`;
+    return `$${val.toFixed(2)}`;
   };
 
-  const formatNumber = (value: number) => {
-    if (value >= 1_000_000) {
-      return `${(value / 1_000_000).toFixed(2)}M`;
+  const formatNumber = (value: number | undefined) => {
+    const val = value ?? 0;
+    if (val >= 1_000_000) {
+      return `${(val / 1_000_000).toFixed(2)}M`;
     }
-    if (value >= 1_000) {
-      return `${(value / 1_000).toFixed(1)}K`;
+    if (val >= 1_000) {
+      return `${(val / 1_000).toFixed(1)}K`;
     }
-    return value.toLocaleString();
+    return val.toLocaleString();
   };
 
   const isPositive = (token.priceChange24h || 0) >= 0;

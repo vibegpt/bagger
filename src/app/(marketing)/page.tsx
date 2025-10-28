@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Zap, TrendingUp, BarChart3, Video, MessageSquare, CheckCircle2, ArrowRight, Coins, Users, Activity, Search, Trophy, DollarSign, Sparkles, Target, Bell, Lock } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { TokenDetailDialog } from "@/components/crypto/token-detail-dialog";
 
 // Leaderboard preview types
 interface LeaderboardEntry {
@@ -25,6 +26,8 @@ export default function LandingPage() {
   const [zoraLeaderboard, setZoraLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [pumpfunLeaderboard, setPumpfunLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(true);
+  const [selectedToken, setSelectedToken] = useState<any | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     async function fetchLeaderboards() {
@@ -68,6 +71,26 @@ export default function LandingPage() {
 
   const formatAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  };
+
+  const handleTokenClick = (entry: LeaderboardEntry, e: React.MouseEvent) => {
+    e.preventDefault();
+    // Convert leaderboard entry to token format for dialog
+    const token = {
+      mint: entry.address,
+      name: entry.name || formatAddress(entry.address),
+      symbol: entry.symbol || entry.name?.slice(0, 4).toUpperCase() || "TOKEN",
+      imageUri: entry.imageUrl || "",
+      marketCap: entry.totalMarketCap || 0,
+      price: 0, // Price not available from leaderboard
+      volume24h: entry.totalVolume || 0,
+      priceChange24h: 0,
+      holderCount: entry.totalHolders || 0,
+      chain: entry.platform === 'zora' ? 'base' as const : 'solana' as const,
+      platform: entry.platform,
+    };
+    setSelectedToken(token);
+    setDialogOpen(true);
   };
 
   return (
@@ -433,10 +456,10 @@ export default function LandingPage() {
                   </>
                 ) : pumpfunLeaderboard.length > 0 ? (
                   pumpfunLeaderboard.map((entry) => (
-                    <Link
+                    <div
                       key={entry.address}
-                      href={`/creator/${entry.address}?platform=pumpfun`}
-                      className="block hover:bg-muted/30 rounded-lg transition-colors"
+                      onClick={(e) => handleTokenClick(entry, e)}
+                      className="block hover:bg-muted/30 rounded-lg transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-3 p-2">
                         <span className="text-sm font-bold text-muted-foreground w-6">
@@ -455,7 +478,7 @@ export default function LandingPage() {
                           </p>
                         </div>
                       </div>
-                    </Link>
+                    </div>
                   ))
                 ) : (
                   <p className="text-sm text-muted-foreground text-center py-4">
@@ -788,6 +811,15 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Token Detail Dialog */}
+      {selectedToken && (
+        <TokenDetailDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          token={selectedToken}
+        />
+      )}
     </div>
   );
 }
