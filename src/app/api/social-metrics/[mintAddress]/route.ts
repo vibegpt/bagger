@@ -9,10 +9,10 @@ export const runtime = 'nodejs';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { mintAddress: string } }
+  { params }: { params: Promise<{ mintAddress: string }> }
 ) {
   try {
-    const { mintAddress } = params;
+    const { mintAddress } = await params;
 
     console.log(`[API] Fetching social metrics for ${mintAddress}`);
 
