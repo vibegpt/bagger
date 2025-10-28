@@ -182,6 +182,7 @@ export async function GET(request: NextRequest) {
               rank: tokenInfo.rank,
               address: tokenInfo.mintAddress,
               name: tokenData.name,
+              symbol: tokenData.symbol || tokenInfo.symbol, // Use API symbol or fallback to hardcoded
               imageUrl: tokenData.imageUri,
               totalMarketCap: tokenData.marketCap,
               totalVolume: tokenData.volumeAllTime,
@@ -205,6 +206,7 @@ export async function GET(request: NextRequest) {
               rank: tokenInfo.rank,
               address: tokenInfo.mintAddress,
               name: tokenInfo.name,
+              symbol: tokenInfo.symbol,
               imageUrl: undefined,
               totalMarketCap: tokenInfo.marketCap,
               totalVolume: 0,
@@ -219,6 +221,7 @@ export async function GET(request: NextRequest) {
             rank: tokenInfo.rank,
             address: tokenInfo.mintAddress,
             name: tokenInfo.name,
+            symbol: tokenInfo.symbol,
             imageUrl: undefined,
             totalMarketCap: tokenInfo.marketCap,
             totalVolume: 0,

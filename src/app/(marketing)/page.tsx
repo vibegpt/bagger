@@ -79,7 +79,7 @@ export default function LandingPage() {
     const token = {
       mint: entry.address,
       name: entry.name || formatAddress(entry.address),
-      symbol: entry.symbol || entry.name?.slice(0, 4).toUpperCase() || "TOKEN",
+      symbol: entry.symbol || entry.name?.toUpperCase().replace(/\s+/g, '') || "TOKEN",
       imageUri: entry.imageUrl || "",
       marketCap: entry.totalMarketCap || 0,
       price: 0, // Price not available from leaderboard
