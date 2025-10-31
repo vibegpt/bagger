@@ -12,80 +12,99 @@ datasource db {
 
 // Users (creators using your analytics tool)
 model User {
-  id                   String                 @id @default(cuid())
-  clerkId              String                 @unique
-  email                String                 @unique
-  name                 String?
-  avatarUrl            String?
-  subscriptionTier     String                 @default("free") // free, starter, pro
-  stripeCustomerId     String?                @unique
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
+  id               String   @id @default(cuid())
+  clerkId          String   @unique
+  email            String   @unique
+  name             String?
+  avatarUrl        String?
+  subscriptionTier String   @default("free") // free, starter, pro
+  stripeCustomerId String?  @unique
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   // Relations
-  platformConnections  PlatformConnection[]
-  products             Product[]
-  revenueSnapshots     RevenueSnapshot[]
-  dailyMetrics         DailyMetric[]
-  syncJobs             SyncJob[]
-  insights             Insight[]
-  zoraCreatorCoins     ZoraCreatorCoin[]
-  zoraContentCoins     ZoraContentCoin[]
-  zoraEarnings         ZoraEarning[]
-  streamSessions       StreamSession[]
-  socialPosts          SocialPost[]
+  platformConnections PlatformConnection[]
+  products            Product[]
+  revenueSnapshots    RevenueSnapshot[]
+  dailyMetrics        DailyMetric[]
+  syncJobs            SyncJob[]
+  insights            Insight[]
+  zoraCreatorCoins    ZoraCreatorCoin[]
+  zoraContentCoins    ZoraContentCoin[]
+  zoraEarnings        ZoraEarning[]
+  streamSessions      StreamSession[]
+  socialPosts         SocialPost[]
+  contentPerformance  ContentPerformance[]
+  demographics        Demographics[]
+  growthPredictions   GrowthPrediction[]
+  correlationInsights CorrelationInsight[]
 
   @@index([clerkId])
   @@index([email])
 }
 
-// Platform Connections (Whop, Gumroad, etc.)
+// Platform Connections (Whop, Gumroad, YouTube, Instagram, etc.)
 model PlatformConnection {
-  id                String    @id @default(cuid())
-  userId            String
-  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  platform          String    @default("whop") // whop, gumroad, stripe, etc.
-  platformUserId    String?
-  accessToken       String?   // Will be encrypted in production
-  refreshToken      String?   // Will be encrypted in production
-  tokenExpiresAt    DateTime?
+  platform       String    @default("whop") // whop, gumroad, stripe, youtube, instagram, tiktok
+  platformUserId String?
+  accessToken    String? // Will be encrypted in production
+  refreshToken   String? // Will be encrypted in production
+  tokenExpiresAt DateTime?
 
-  lastSyncedAt      DateTime?
-  syncStatus        String    @default("active") // active, error, disconnected
+  // YouTube-specific fields
+  youtubeChannelId   String?
+  youtubeChannelName String?
+  youtubeSubscribers Int?
 
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  // Instagram-specific fields
+  instagramBusinessId String?
+  instagramUsername   String?
+  instagramFollowers  Int?
+
+  // TikTok-specific fields (future)
+  tiktokUsername  String?
+  tiktokFollowers Int?
+
+  lastSyncedAt DateTime?
+  syncStatus   String    @default("active") // active, error, disconnected
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, platform])
   @@index([userId])
+  @@index([platform])
 }
 
 // Products (from platforms)
 model Product {
-  id                  String            @id @default(cuid())
-  userId              String
-  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  platform            String            @default("whop")
-  platformProductId   String
+  platform          String @default("whop")
+  platformProductId String
 
-  name                String
-  description         String?
-  price               Decimal           @db.Decimal(10, 2)
-  currency            String            @default("USD")
-  pricingType         String?           // subscription, one_time
-  billingPeriod       String?           // monthly, yearly, one_time
-  status              String            @default("active") // active, archived
+  name          String
+  description   String?
+  price         Decimal @db.Decimal(10, 2)
+  currency      String  @default("USD")
+  pricingType   String? // subscription, one_time
+  billingPeriod String? // monthly, yearly, one_time
+  status        String  @default("active") // active, archived
 
-  imageUrl            String?
-  url                 String?
+  imageUrl String?
+  url      String?
 
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  revenueSnapshots    RevenueSnapshot[]
+  revenueSnapshots RevenueSnapshot[]
 
   @@unique([userId, platform, platformProductId])
   @@index([userId])
@@ -94,23 +113,23 @@ model Product {
 
 // Revenue Records (daily snapshots per product)
 model RevenueSnapshot {
-  id                  String    @id @default(cuid())
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  productId           String
-  product             Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  date                DateTime  @db.Date
+  date DateTime @db.Date
 
-  revenue             Decimal   @default(0) @db.Decimal(10, 2)
-  subscriberCount     Int       @default(0)
-  newSubscribers      Int       @default(0)
-  churnedSubscribers  Int       @default(0)
-  views               Int       @default(0)
-  conversions         Int       @default(0)
+  revenue            Decimal @default(0) @db.Decimal(10, 2)
+  subscriberCount    Int     @default(0)
+  newSubscribers     Int     @default(0)
+  churnedSubscribers Int     @default(0)
+  views              Int     @default(0)
+  conversions        Int     @default(0)
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([userId, productId, date])
   @@index([userId, date])
@@ -119,20 +138,20 @@ model RevenueSnapshot {
 
 // Aggregate Metrics (for fast dashboard queries)
 model DailyMetric {
-  id                  String    @id @default(cuid())
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  date                DateTime  @db.Date
+  date DateTime @db.Date
 
-  totalRevenue        Decimal   @default(0) @db.Decimal(10, 2)
-  totalSubscribers    Int       @default(0)
-  newSubscribers      Int       @default(0)
-  churnedSubscribers  Int       @default(0)
-  churnRate           Decimal?  @db.Decimal(5, 2)
-  mrr                 Decimal   @default(0) @db.Decimal(10, 2)
+  totalRevenue       Decimal  @default(0) @db.Decimal(10, 2)
+  totalSubscribers   Int      @default(0)
+  newSubscribers     Int      @default(0)
+  churnedSubscribers Int      @default(0)
+  churnRate          Decimal? @db.Decimal(5, 2)
+  mrr                Decimal  @default(0) @db.Decimal(10, 2)
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([userId, date])
   @@index([userId, date])
@@ -140,19 +159,19 @@ model DailyMetric {
 
 // Sync Jobs (track background syncs)
 model SyncJob {
-  id              String    @id @default(cuid())
-  userId          String
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  platform        String
-  status          String    @default("pending") // pending, running, completed, failed
+  platform String
+  status   String @default("pending") // pending, running, completed, failed
 
-  startedAt       DateTime?
-  completedAt     DateTime?
-  errorMessage    String?
-  recordsSynced   Int?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  errorMessage  String?
+  recordsSynced Int?
 
-  createdAt       DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([status])
@@ -160,19 +179,19 @@ model SyncJob {
 
 // Insights (automated insights for users)
 model Insight {
-  id            String    @id @default(cuid())
-  userId        String
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  insightType   String    // revenue_spike, churn_warning, milestone, etc.
-  severity      String    @default("info") // info, warning, success, critical
+  insightType String // revenue_spike, churn_warning, milestone, etc.
+  severity    String @default("info") // info, warning, success, critical
 
-  title         String
-  description   String    @db.Text
+  title       String
+  description String @db.Text
 
-  acknowledged  Boolean   @default(false)
+  acknowledged Boolean @default(false)
 
-  createdAt     DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([acknowledged])
@@ -180,31 +199,31 @@ model Insight {
 
 // Zora Creator Coins
 model ZoraCreatorCoin {
-  id                String    @id @default(cuid())
-  userId            String
-  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  creatorAddress    String    // Wallet address
-  coinAddress       String    // ERC20 token address
-  name              String
-  symbol            String
+  creatorAddress String // Wallet address
+  coinAddress    String // ERC20 token address
+  name           String
+  symbol         String
 
-  totalSupply       String
-  marketCap         Decimal   @db.Decimal(18, 2)
-  price             Decimal   @db.Decimal(18, 8)
-  priceChange24h    Decimal   @db.Decimal(10, 2)
+  totalSupply    String
+  marketCap      Decimal @db.Decimal(18, 2)
+  price          Decimal @db.Decimal(18, 8)
+  priceChange24h Decimal @db.Decimal(10, 2)
 
-  volume24h         Decimal   @db.Decimal(18, 2)
-  volume7d          Decimal   @db.Decimal(18, 2)
-  volumeAllTime     Decimal   @db.Decimal(18, 2)
+  volume24h     Decimal @db.Decimal(18, 2)
+  volume7d      Decimal @db.Decimal(18, 2)
+  volumeAllTime Decimal @db.Decimal(18, 2)
 
-  holderCount       Int       @default(0)
-  liquidityPool     String    // 50% of supply
-  vestedToCreator   String    // 50% vested over 5 years
+  holderCount     Int    @default(0)
+  liquidityPool   String // 50% of supply
+  vestedToCreator String // 50% vested over 5 years
 
-  lastSyncedAt      DateTime  @default(now())
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  lastSyncedAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@unique([userId, creatorAddress])
   @@index([userId])
@@ -213,30 +232,30 @@ model ZoraCreatorCoin {
 
 // Zora Content Coins (Posts)
 model ZoraContentCoin {
-  id                String    @id @default(cuid())
-  userId            String
-  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  creatorAddress    String
-  coinAddress       String    // ERC20 token address
-  postId            String
-  postContent       String?   @db.Text
-  postUrl           String?
+  creatorAddress String
+  coinAddress    String // ERC20 token address
+  postId         String
+  postContent    String? @db.Text
+  postUrl        String?
 
-  totalSupply       String
-  marketCap         Decimal   @db.Decimal(18, 2)
-  price             Decimal   @db.Decimal(18, 8)
+  totalSupply String
+  marketCap   Decimal @db.Decimal(18, 2)
+  price       Decimal @db.Decimal(18, 8)
 
-  volume24h         Decimal   @db.Decimal(18, 2)
-  volumeAllTime     Decimal   @db.Decimal(18, 2)
+  volume24h     Decimal @db.Decimal(18, 2)
+  volumeAllTime Decimal @db.Decimal(18, 2)
 
-  holderCount       Int       @default(0)
-  creatorAllocation String    // 10M tokens
-  marketAllocation  String    // 990M tokens
+  holderCount       Int    @default(0)
+  creatorAllocation String // 10M tokens
+  marketAllocation  String // 990M tokens
 
-  lastSyncedAt      DateTime  @default(now())
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  lastSyncedAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@unique([userId, postId])
   @@index([userId])
@@ -245,23 +264,23 @@ model ZoraContentCoin {
 
 // Zora Earnings (trading fees + creator cut)
 model ZoraEarning {
-  id                      String    @id @default(cuid())
-  userId                  String
-  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  creatorAddress          String
-  date                    DateTime  @db.Date
+  creatorAddress String
+  date           DateTime @db.Date
 
-  tradingFeesEarned       Decimal   @db.Decimal(18, 2) // in $ZORA
-  creatorCutEarned        Decimal   @db.Decimal(18, 2) // 1% of trades
-  vestedTokensValue       Decimal   @db.Decimal(18, 2)
+  tradingFeesEarned Decimal @db.Decimal(18, 2) // in $ZORA
+  creatorCutEarned  Decimal @db.Decimal(18, 2) // 1% of trades
+  vestedTokensValue Decimal @db.Decimal(18, 2)
 
-  fromCreatorCoin         Decimal   @db.Decimal(18, 2)
-  fromContentCoins        Decimal   @db.Decimal(18, 2)
+  fromCreatorCoin  Decimal @db.Decimal(18, 2)
+  fromContentCoins Decimal @db.Decimal(18, 2)
 
-  totalEarningsUSD        Decimal   @db.Decimal(18, 2)
+  totalEarningsUSD Decimal @db.Decimal(18, 2)
 
-  createdAt               DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([userId, creatorAddress, date])
   @@index([userId])
@@ -270,43 +289,43 @@ model ZoraEarning {
 
 // Stream Sessions (manually logged or auto-detected)
 model StreamSession {
-  id                  String            @id @default(cuid())
-  userId              String
-  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  platform            String            // pumpfun, zora, youtube, twitch, kick
-  platformUrl         String?           // URL to the stream/video
+  platform    String // pumpfun, zora, youtube, twitch, kick
+  platformUrl String? // URL to the stream/video
 
   // Stream metadata
-  title               String?
-  description         String?           @db.Text
-  category            String?           // Just Chatting, Gaming, Educational, etc.
+  title       String?
+  description String? @db.Text
+  category    String? // Just Chatting, Gaming, Educational, etc.
 
   // Timing
-  startedAt           DateTime
-  endedAt             DateTime?
-  durationMinutes     Int?              // Calculated on end
+  startedAt       DateTime
+  endedAt         DateTime?
+  durationMinutes Int? // Calculated on end
 
   // Metrics (can be auto-populated from YouTube/Twitch API)
-  peakViewers         Int?
-  averageViewers      Int?
-  totalViews          Int?
-  likes               Int?
-  comments            Int?
-  shares              Int?
+  peakViewers    Int?
+  averageViewers Int?
+  totalViews     Int?
+  likes          Int?
+  comments       Int?
+  shares         Int?
 
   // Associated tokens (for correlation)
-  relatedTokenMint    String?           // Solana mint (Pump.fun)
-  relatedTokenAddress String?           // ERC20 address (Zora)
+  relatedTokenMint    String? // Solana mint (Pump.fun)
+  relatedTokenAddress String? // ERC20 address (Zora)
 
   // Manual vs Auto
-  source              String            @default("manual") // manual, youtube_api, twitch_api
+  source String @default("manual") // manual, youtube_api, twitch_api
 
   // Token performance snapshots
-  tokenSnapshots      TokenSnapshot[]
+  tokenSnapshots TokenSnapshot[]
 
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([platform])
@@ -317,26 +336,26 @@ model StreamSession {
 
 // Token Performance Snapshots (before/during/after streams)
 model TokenSnapshot {
-  id                  String          @id @default(cuid())
-  streamSessionId     String
-  streamSession       StreamSession   @relation(fields: [streamSessionId], references: [id], onDelete: Cascade)
+  id              String        @id @default(cuid())
+  streamSessionId String
+  streamSession   StreamSession @relation(fields: [streamSessionId], references: [id], onDelete: Cascade)
 
-  snapshotType        String          // pre_stream, during_stream, post_stream_1h, post_stream_24h
-  snapshotTime        DateTime
+  snapshotType String // pre_stream, during_stream, post_stream_1h, post_stream_24h
+  snapshotTime DateTime
 
   // Token identification
-  tokenMint           String?         // Solana (Pump.fun)
-  tokenAddress        String?         // ERC20 (Zora)
+  tokenMint    String? // Solana (Pump.fun)
+  tokenAddress String? // ERC20 (Zora)
 
   // Performance metrics at snapshot time
-  marketCap           Decimal         @db.Decimal(18, 2)
-  price               Decimal         @db.Decimal(18, 8)
-  volume24h           Decimal         @db.Decimal(18, 2)
-  holderCount         Int?
-  priceChange1h       Decimal?        @db.Decimal(10, 2)
-  priceChange24h      Decimal?        @db.Decimal(10, 2)
+  marketCap      Decimal  @db.Decimal(18, 2)
+  price          Decimal  @db.Decimal(18, 8)
+  volume24h      Decimal  @db.Decimal(18, 2)
+  holderCount    Int?
+  priceChange1h  Decimal? @db.Decimal(10, 2)
+  priceChange24h Decimal? @db.Decimal(10, 2)
 
-  createdAt           DateTime        @default(now())
+  createdAt DateTime @default(now())
 
   @@index([streamSessionId])
   @@index([snapshotTime])
@@ -346,46 +365,46 @@ model TokenSnapshot {
 
 // Social Posts (Twitter, Discord, Telegram engagement tracking)
 model SocialPost {
-  id                  String          @id @default(cuid())
-  userId              String
-  user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Platform
-  platform            String          // twitter, discord, telegram, instagram, tiktok
-  platformUrl         String?         // Link to the post
+  platform    String // twitter, discord, telegram, instagram, tiktok
+  platformUrl String? // Link to the post
 
   // Post content
-  content             String?         @db.Text
-  contentType         String?         // text, image, video, poll, thread
+  content     String? @db.Text
+  contentType String? // text, image, video, poll, thread
 
   // Timing
-  postedAt            DateTime
-  dayOfWeek           Int             // 0-6 (Sunday-Saturday)
-  hourOfDay           Int             // 0-23
+  postedAt  DateTime
+  dayOfWeek Int // 0-6 (Sunday-Saturday)
+  hourOfDay Int // 0-23
 
   // Engagement metrics
-  likes               Int             @default(0)
-  comments            Int             @default(0)
-  shares              Int             @default(0)
-  views               Int?
-  clicks              Int?
+  likes    Int  @default(0)
+  comments Int  @default(0)
+  shares   Int  @default(0)
+  views    Int?
+  clicks   Int?
 
   // Calculated metrics
-  engagementRate      Decimal?        @db.Decimal(10, 4) // (likes + comments + shares) / impressions
-  totalEngagement     Int             @default(0)        // likes + comments + shares
+  engagementRate  Decimal? @db.Decimal(10, 4) // (likes + comments + shares) / impressions
+  totalEngagement Int      @default(0) // likes + comments + shares
 
   // Associated token (for correlation analysis)
-  relatedTokenMint    String?         // Solana mint (Pump.fun)
-  relatedTokenAddress String?         // ERC20 address (Zora)
+  relatedTokenMint    String? // Solana mint (Pump.fun)
+  relatedTokenAddress String? // ERC20 address (Zora)
 
   // Token performance snapshots
-  tokenSnapshots      PostTokenSnapshot[]
+  tokenSnapshots PostTokenSnapshot[]
 
   // Manual vs Auto
-  source              String          @default("manual") // manual, twitter_api, discord_bot
+  source String @default("manual") // manual, twitter_api, discord_bot
 
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([platform])
@@ -397,26 +416,26 @@ model SocialPost {
 
 // Token snapshots for social posts (track token performance around posts)
 model PostTokenSnapshot {
-  id                  String          @id @default(cuid())
-  socialPostId        String
-  socialPost          SocialPost      @relation(fields: [socialPostId], references: [id], onDelete: Cascade)
+  id           String     @id @default(cuid())
+  socialPostId String
+  socialPost   SocialPost @relation(fields: [socialPostId], references: [id], onDelete: Cascade)
 
-  snapshotType        String          // before_post, during_post, after_post_1h, after_post_24h
-  snapshotTime        DateTime
+  snapshotType String // before_post, during_post, after_post_1h, after_post_24h
+  snapshotTime DateTime
 
   // Token identification
-  tokenMint           String?         // Solana (Pump.fun)
-  tokenAddress        String?         // ERC20 (Zora)
+  tokenMint    String? // Solana (Pump.fun)
+  tokenAddress String? // ERC20 (Zora)
 
   // Performance metrics at snapshot time
-  marketCap           Decimal         @db.Decimal(18, 2)
-  price               Decimal         @db.Decimal(18, 8)
-  volume24h           Decimal         @db.Decimal(18, 2)
-  holderCount         Int?
-  priceChange1h       Decimal?        @db.Decimal(10, 2)
-  priceChange24h      Decimal?        @db.Decimal(10, 2)
+  marketCap      Decimal  @db.Decimal(18, 2)
+  price          Decimal  @db.Decimal(18, 8)
+  volume24h      Decimal  @db.Decimal(18, 2)
+  holderCount    Int?
+  priceChange1h  Decimal? @db.Decimal(10, 2)
+  priceChange24h Decimal? @db.Decimal(10, 2)
 
-  createdAt           DateTime        @default(now())
+  createdAt DateTime @default(now())
 
   @@index([socialPostId])
   @@index([snapshotTime])
@@ -426,63 +445,63 @@ model PostTokenSnapshot {
 
 // Weekly Reports (Zora vs Pump.fun comparative data)
 model WeeklyReport {
-  id                      String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // Report metadata
-  weekNumber              Int
-  reportDate              DateTime  @db.Date
+  weekNumber Int
+  reportDate DateTime @db.Date
 
   // Zora metrics
-  zoraCreators            Int
-  zoraTraders             Int
-  zoraTradingVolume       Decimal   @db.Decimal(18, 2)
-  zoraCreatorEarnings     Decimal   @db.Decimal(18, 2)
-  zoraDailyCoins          Int
-  zoraGraduationRate      Decimal   @db.Decimal(5, 2)
-  zoraWhaleIncrease       Decimal   @db.Decimal(10, 2)
-  zoraAvgEarnings         Decimal   @db.Decimal(10, 2)
+  zoraCreators        Int
+  zoraTraders         Int
+  zoraTradingVolume   Decimal @db.Decimal(18, 2)
+  zoraCreatorEarnings Decimal @db.Decimal(18, 2)
+  zoraDailyCoins      Int
+  zoraGraduationRate  Decimal @db.Decimal(5, 2)
+  zoraWhaleIncrease   Decimal @db.Decimal(10, 2)
+  zoraAvgEarnings     Decimal @db.Decimal(10, 2)
 
   // Pump.fun metrics
-  pumpDailyLaunches       Int
-  pumpGraduationRate      Decimal   @db.Decimal(5, 2)
-  pumpDailyGraduations    Int
-  pumpDailyUsers          Int
-  pumpProfitableUsers     Decimal   @db.Decimal(5, 2)
-  pumpAvgProfit           Decimal   @db.Decimal(10, 2)
+  pumpDailyLaunches    Int
+  pumpGraduationRate   Decimal @db.Decimal(5, 2)
+  pumpDailyGraduations Int
+  pumpDailyUsers       Int
+  pumpProfitableUsers  Decimal @db.Decimal(5, 2)
+  pumpAvgProfit        Decimal @db.Decimal(10, 2)
 
   // Arena metrics (STEALTH MODE - collected but not displayed)
-  arenaTVL                Decimal?  @db.Decimal(18, 2)
-  arenaCreators           Int?
-  arenaTicketHolders      Int?
-  arenaDailyUsers         Int?
-  arenaTradingVolume      Decimal?  @db.Decimal(18, 2)
-  arenaGraduationRate     Decimal?  @db.Decimal(5, 2)
-  arenaAvgEarnings        Decimal?  @db.Decimal(10, 2)
-  arenaWhaleIncrease      Decimal?  @db.Decimal(10, 2)
+  arenaTVL            Decimal? @db.Decimal(18, 2)
+  arenaCreators       Int?
+  arenaTicketHolders  Int?
+  arenaDailyUsers     Int?
+  arenaTradingVolume  Decimal? @db.Decimal(18, 2)
+  arenaGraduationRate Decimal? @db.Decimal(5, 2)
+  arenaAvgEarnings    Decimal? @db.Decimal(10, 2)
+  arenaWhaleIncrease  Decimal? @db.Decimal(10, 2)
 
   // Data sources
-  zoraDataSource          String
-  pumpDataSource          String
-  arenaDataSource         String?   // Arena data source
+  zoraDataSource  String
+  pumpDataSource  String
+  arenaDataSource String? // Arena data source
 
   // Generated content (stored as JSON)
-  twitterThread           Json?     // Array of tweet objects
-  insights                Json?     // Array of insight objects from consensus
-  visualizations          Json?     // URLs to generated charts
+  twitterThread  Json? // Array of tweet objects
+  insights       Json? // Array of insight objects from consensus
+  visualizations Json? // URLs to generated charts
 
   // Publishing status
-  posted                  Boolean   @default(false)
-  postedAt                DateTime?
-  twitterThreadUrl        String?   // URL to posted thread
+  posted           Boolean   @default(false)
+  postedAt         DateTime?
+  twitterThreadUrl String? // URL to posted thread
 
   // Engagement tracking (if available)
-  threadViews             Int?
-  threadLikes             Int?
-  threadRetweets          Int?
-  threadReplies           Int?
+  threadViews    Int?
+  threadLikes    Int?
+  threadRetweets Int?
+  threadReplies  Int?
 
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([weekNumber, reportDate])
   @@index([weekNumber])
@@ -496,43 +515,43 @@ model WeeklyReport {
 
 // Token Metrics (for filtered leaderboards)
 model TokenMetrics {
-  id                      String                @id @default(cuid())
-  mintAddress             String                @unique @db.VarChar(44)
-  name                    String?
-  symbol                  String?
-  imageUrl                String?
-  creatorWallet           String?               @db.VarChar(44)
-  createdAt               DateTime
+  id            String   @id @default(cuid())
+  mintAddress   String   @unique @db.VarChar(44)
+  name          String?
+  symbol        String?
+  imageUrl      String?
+  creatorWallet String?  @db.VarChar(44)
+  createdAt     DateTime
 
   // Current metrics
-  marketCapUsd            Decimal               @db.Decimal(15, 2)
-  liquidityUsd            Decimal               @db.Decimal(15, 2)
-  volume24hUsd            Decimal               @db.Decimal(15, 2)
-  volume7dUsd             Decimal?              @db.Decimal(15, 2)
-  holderCount             Int
-  uniqueTraders24h        Int?
-  uniqueTraders7d         Int?
+  marketCapUsd     Decimal  @db.Decimal(15, 2)
+  liquidityUsd     Decimal  @db.Decimal(15, 2)
+  volume24hUsd     Decimal  @db.Decimal(15, 2)
+  volume7dUsd      Decimal? @db.Decimal(15, 2)
+  holderCount      Int
+  uniqueTraders24h Int?
+  uniqueTraders7d  Int?
 
   // Derived metrics
   tokenAgeHours           Int
   distinctTradingHours24h Int?
-  priceChange24h          Decimal?              @db.Decimal(10, 4)
-  liquidityChange24h      Decimal?              @db.Decimal(10, 4)
+  priceChange24h          Decimal? @db.Decimal(10, 4)
+  liquidityChange24h      Decimal? @db.Decimal(10, 4)
 
   // Anti-rug flags
-  liquidityDrainDetected  Boolean               @default(false)
-  priceCrashDetected      Boolean               @default(false)
-  washTradingSuspected    Boolean               @default(false)
+  liquidityDrainDetected Boolean @default(false)
+  priceCrashDetected     Boolean @default(false)
+  washTradingSuspected   Boolean @default(false)
 
   // Metadata
-  creatorVerified         Boolean               @default(false)
-  graduatedToRaydium      Boolean               @default(false)
+  creatorVerified    Boolean @default(false)
+  graduatedToRaydium Boolean @default(false)
 
   // Timestamps
-  lastUpdatedAt           DateTime              @updatedAt
+  lastUpdatedAt DateTime @updatedAt
 
   // Relations
-  metricSnapshots         TokenMetricSnapshot[]
+  metricSnapshots TokenMetricSnapshot[]
 
   @@index([marketCapUsd])
   @@index([tokenAgeHours])
@@ -542,58 +561,78 @@ model TokenMetrics {
 
 // Token Metric Snapshots (time-series for velocity calculations)
 model TokenMetricSnapshot {
-  id                Int           @id @default(autoincrement())
-  mintAddress       String        @db.VarChar(44)
-  timestamp         DateTime
-  marketCapUsd      Decimal       @db.Decimal(15, 2)
-  liquidityUsd      Decimal       @db.Decimal(15, 2)
-  priceUsd          Decimal       @db.Decimal(15, 8)
-  holderCount       Int
+  id           Int      @id @default(autoincrement())
+  mintAddress  String   @db.VarChar(44)
+  timestamp    DateTime
+  marketCapUsd Decimal  @db.Decimal(15, 2)
+  liquidityUsd Decimal  @db.Decimal(15, 2)
+  priceUsd     Decimal  @db.Decimal(15, 8)
+  holderCount  Int
 
-  token             TokenMetrics  @relation(fields: [mintAddress], references: [mintAddress], onDelete: Cascade)
+  token TokenMetrics @relation(fields: [mintAddress], references: [mintAddress], onDelete: Cascade)
 
   @@index([mintAddress, timestamp])
 }
 
-// Creator Registry (for verification and creator linkage)
+// Creator Registry (for verification and creator linkage - IDENTITY GRAPH)
 model CreatorRegistry {
-  id                  String    @id @default(cuid())
-  walletAddress       String    @unique @db.VarChar(44)
-  username            String?
-  verified            Boolean   @default(false)
-  verificationMethod  String?   // twitter, discord, manual
-  socialLinks         Json?     // {twitter, discord, telegram, etc}
-  createdAt           DateTime  @default(now())
+  id            String  @id @default(cuid())
+  walletAddress String  @unique @db.VarChar(44)
+  username      String?
+
+  // Social media handles (for Web2+Web3 identity mapping)
+  youtubeChannelId    String? @unique
+  youtubeChannelName  String?
+  instagramUsername   String? @unique
+  instagramBusinessId String?
+  twitterHandle       String? @unique
+  tiktokUsername      String? @unique
+  discordHandle       String?
+  telegramHandle      String?
+
+  // Verification status
+  verified           Boolean @default(false)
+  verificationMethod String? // signed_wallet, twitter_link, youtube_description, manual
+  verificationProof  String? // URL or signature
+
+  // Additional social links (JSON for flexibility)
+  socialLinks Json? // {website, podcast, newsletter, etc}
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([verified])
+  @@index([youtubeChannelId])
+  @@index([instagramUsername])
+  @@index([twitterHandle])
 }
 
 // Social Metrics from CoinGecko (for creator coins)
 model SocialMetrics {
-  id                        String    @id @default(cuid())
-  mintAddress               String    @db.VarChar(44) // Link to Pump.fun token
-  coinGeckoId               String?   // CoinGecko coin ID (if found)
+  id          String  @id @default(cuid())
+  mintAddress String  @db.VarChar(44) // Link to Pump.fun token
+  coinGeckoId String? // CoinGecko coin ID (if found)
 
   // Social follower counts
-  twitterFollowers          Int?
-  redditSubscribers         Int?
-  telegramUsers             Int?
-  facebookLikes             Int?
+  twitterFollowers  Int?
+  redditSubscribers Int?
+  telegramUsers     Int?
+  facebookLikes     Int?
 
   // Community scores
-  communityScore            Decimal?  @db.Decimal(5, 2) // 0-100
-  sentimentUpPercentage     Decimal?  @db.Decimal(5, 2) // 0-100
-  sentimentDownPercentage   Decimal?  @db.Decimal(5, 2) // 0-100
+  communityScore          Decimal? @db.Decimal(5, 2) // 0-100
+  sentimentUpPercentage   Decimal? @db.Decimal(5, 2) // 0-100
+  sentimentDownPercentage Decimal? @db.Decimal(5, 2) // 0-100
 
   // Growth metrics (calculated from snapshots)
-  twitterGrowth7d           Int?      // Follower change last 7 days
-  redditGrowth7d            Int?      // Subscriber change last 7 days
-  communityGrowthRate       Decimal?  @db.Decimal(10, 4) // % change
+  twitterGrowth7d     Int? // Follower change last 7 days
+  redditGrowth7d      Int? // Subscriber change last 7 days
+  communityGrowthRate Decimal? @db.Decimal(10, 4) // % change
 
   // Metadata
-  lastSyncedAt              DateTime  @default(now())
-  createdAt                 DateTime  @default(now())
-  updatedAt                 DateTime  @updatedAt
+  lastSyncedAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@unique([mintAddress])
   @@index([coinGeckoId])
@@ -602,20 +641,222 @@ model SocialMetrics {
 
 // Social Metrics Snapshots (daily tracking for growth analysis)
 model SocialMetricsSnapshot {
-  id                    Int       @id @default(autoincrement())
-  mintAddress           String    @db.VarChar(44)
-  timestamp             DateTime
+  id          Int      @id @default(autoincrement())
+  mintAddress String   @db.VarChar(44)
+  timestamp   DateTime
 
   // Snapshot of all social metrics
   twitterFollowers      Int?
   redditSubscribers     Int?
   telegramUsers         Int?
   facebookLikes         Int?
-  communityScore        Decimal?  @db.Decimal(5, 2)
-  sentimentUpPercentage Decimal?  @db.Decimal(5, 2)
+  communityScore        Decimal? @db.Decimal(5, 2)
+  sentimentUpPercentage Decimal? @db.Decimal(5, 2)
 
-  createdAt             DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([mintAddress, timestamp])
   @@index([timestamp])
+}
+
+// ================================================================================
+// WEB2 SOCIAL MEDIA INTEGRATION MODELS (YouTube, Instagram, TikTok)
+// ================================================================================
+
+// Content Performance (individual videos, posts, reels)
+model ContentPerformance {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Platform & Content ID
+  platform     String // youtube, instagram, tiktok, twitter
+  contentId    String // Video ID, Post ID, etc.
+  contentType  String // video, short, reel, post, story, tweet
+  contentUrl   String?
+  thumbnailUrl String?
+
+  // Content metadata
+  title       String?
+  description String?  @db.Text
+  publishedAt DateTime
+
+  // Performance metrics
+  views    Int?
+  likes    Int?
+  comments Int?
+  shares   Int?
+  saves    Int?
+
+  // YouTube-specific
+  watchTimeMinutes    Float?
+  averageViewDuration Float?
+  clickThroughRate    Float?
+  subscribersGained   Int?
+
+  // Instagram-specific
+  reach       Int?
+  impressions Int?
+  reelsPlays  Int?
+
+  // TikTok-specific
+  completionRate Float?
+  duration       Int? // Video/content duration in seconds
+
+  // Engagement metrics (calculated)
+  engagementRate  Float?
+  totalEngagement Int? // likes + comments + shares
+
+  // Token correlation (CRITICAL for Web2+Web3 insights)
+  relatedTokenMint    String? // Solana mint (Pump.fun)
+  relatedTokenAddress String? // ERC20 address (Zora)
+
+  // Token performance snapshots around this content
+  tokenSnapshots ContentTokenSnapshot[]
+
+  // Data source
+  source String @default("api") // api, manual, webhook
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, platform, contentId])
+  @@index([userId])
+  @@index([platform])
+  @@index([publishedAt])
+  @@index([relatedTokenMint])
+  @@index([relatedTokenAddress])
+}
+
+// Token snapshots around content publication
+model ContentTokenSnapshot {
+  id        String             @id @default(cuid())
+  contentId String
+  content   ContentPerformance @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  snapshotType String // before_post, post_1h, post_6h, post_24h, post_7d
+  snapshotTime DateTime
+
+  // Token identification
+  tokenMint    String? // Solana (Pump.fun)
+  tokenAddress String? // ERC20 (Zora)
+
+  // Performance metrics at snapshot time
+  marketCap      Decimal  @db.Decimal(18, 2)
+  price          Decimal  @db.Decimal(18, 8)
+  volume24h      Decimal  @db.Decimal(18, 2)
+  holderCount    Int?
+  priceChange1h  Decimal? @db.Decimal(10, 2)
+  priceChange24h Decimal? @db.Decimal(10, 2)
+
+  createdAt DateTime @default(now())
+
+  @@index([contentId])
+  @@index([snapshotTime])
+  @@index([tokenMint])
+  @@index([tokenAddress])
+}
+
+// Audience Demographics (YouTube, Instagram analytics)
+model Demographics {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  platform String // youtube, instagram
+  date     DateTime @db.Date
+
+  // Age ranges (percentages 0-100)
+  age13_17  Float?
+  age18_24  Float?
+  age25_34  Float?
+  age35_44  Float?
+  age45_54  Float?
+  age55_64  Float?
+  age65Plus Float?
+
+  // Gender distribution (percentages 0-100)
+  genderMale   Float?
+  genderFemale Float?
+  genderOther  Float?
+
+  // Geographic data (stored as JSON for flexibility)
+  topCountries Json? // [{"country": "US", "percentage": 45.2}, ...]
+  topCities    Json? // [{"city": "New York", "percentage": 12.3}, ...]
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, platform, date])
+  @@index([userId])
+  @@index([date])
+}
+
+// Growth Predictions (AI-powered forecasts)
+model GrowthPrediction {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  platform String // youtube, instagram, token
+
+  // Predictions
+  predictedFollowers    Int? // Predicted follower count
+  predictedRevenue      Float? // Predicted revenue
+  predictedTokenHolders Int? // Predicted token holders
+  predictedMarketCap    Decimal? @db.Decimal(18, 2)
+
+  // Prediction metadata
+  predictionDate  DateTime // When prediction was made
+  targetDate      DateTime // Date being predicted for
+  confidenceScore Float? // 0-100
+
+  // Recommendations (JSON array)
+  recommendations Json? // [{"type": "content", "message": "Post on Tuesday 7pm"}, ...]
+
+  // Model info
+  modelVersion   String? // v1, v2, etc.
+  dataPointsUsed Int? // How many historical data points
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, platform])
+  @@index([targetDate])
+}
+
+// Correlation Insights (pre-calculated insights for fast dashboard)
+model CorrelationInsight {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  insightType String // stream_impact, post_impact, best_time, cohort_benchmark
+  category    String // content, timing, audience, performance
+
+  // Insight data
+  title       String // "Streams drive +8% token price"
+  description String   @db.Text // Full explanation
+  metricValue Decimal? @db.Decimal(10, 2) // +8.5
+  metricUnit  String? // "percent", "holders", "views"
+
+  // Confidence & sample size
+  confidenceScore Float? // 0-100
+  sampleSize      Int? // Number of events analyzed
+  timeRange       String? // "last_30_days", "all_time"
+
+  // Related entities
+  relatedPlatform     String? // youtube, instagram, etc.
+  relatedTokenMint    String?
+  relatedTokenAddress String?
+
+  // Visibility
+  priority  Int     @default(0) // Higher = show first
+  dismissed Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([insightType])
+  @@index([priority])
+  @@index([createdAt])
 }
